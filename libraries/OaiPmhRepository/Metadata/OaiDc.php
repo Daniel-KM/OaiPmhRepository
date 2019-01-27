@@ -55,19 +55,23 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
             'language', 'relation', 'coverage', 'rights',
         );
 
+        $exposeItemType = (bool) get_option('oaipmh_repository_expose_item_type');
+        $exposeFiles = (bool) get_option('oaipmh_repository_expose_files');
+
         /* Must create elements using createElement to make DOM allow a
          * top-level xmlns declaration instead of wasteful and non-
          * compliant per-node declarations.
          */
         foreach ($dcElementNames as $elementName) {
+            $term = 'dc:' . $elementName;
             $upperName = Inflector::camelize($elementName);
             $dcElements = $item->getElementTexts(
                 'Dublin Core',
                 $upperName
             );
 
-            // Prepend the item type, if any.
-            if ($elementName == 'type' && get_option('oaipmh_repository_expose_item_type')) {
+            // Prepend the item type, if any and if wanted.
+            if ($exposeItemType && $elementName == 'type') {
                 $dcType = $item->getProperty('item_type_name');
                 if ($dcType) {
                     $oai_dc->appendNewElement('dc:type', $dcType);
@@ -75,7 +79,7 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
             }
 
             foreach ($dcElements as $elementText) {
-                $oai_dc->appendNewElement('dc:' . $elementName, $elementText->text);
+                $oai_dc->appendNewElement($term, $elementText->text);
             }
 
             // Append the browse URI to all results
@@ -83,7 +87,7 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
                 $oai_dc->appendNewElement('dc:identifier', record_url($item, 'show', true));
 
                 // Also append an identifier for each file
-                if (get_option('oaipmh_repository_expose_files')) {
+                if ($exposeFiles) {
                     $files = $item->getFiles();
                     foreach ($files as $file) {
                         $oai_dc->appendNewElement('dc:identifier', $file->getWebPath('original'));
