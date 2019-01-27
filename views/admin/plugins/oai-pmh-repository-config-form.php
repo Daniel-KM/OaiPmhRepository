@@ -120,6 +120,24 @@
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
+            'oaipmh_repository_custom_oai_dc',
+            __('Output custom metadata for oai_dc')
+        ); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('Apply the custom oai_dc output.'); ?>
+        </p>
+        <?php echo $this->formCheckbox(
+            'oaipmh_repository_custom_oai_dc',
+            true,
+            array('checked' => (bool) get_option('oaipmh_repository_custom_oai_dc'))
+        ); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $this->formLabel(
             'oaipmh_repository_add_human_stylesheet',
             __('Human display')
         ); ?>

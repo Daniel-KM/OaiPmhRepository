@@ -37,6 +37,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
      */
     protected $_filters = array(
         'admin_dashboard_panels',
+        'oai_pmh_repository_metadata_formats',
     );
 
     /**
@@ -49,6 +50,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'oaipmh_repository_expose_files' => true,
         'oaipmh_repository_expose_empty_collections' => true,
         'oaipmh_repository_expose_item_type' => false,
+        'oaipmh_repository_custom_oai_dc' => false,
         'oaipmh_repository_add_human_stylesheet' => true,
     );
 
@@ -176,6 +178,20 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         $html .= '<p>' . __('Harvester can access metadata from this site: %s.', sprintf('<a href="%s">%s</a>', OAI_PMH_BASE_URL, OAI_PMH_BASE_URL)) . '</p>';
         $panels[] = $html;
         return $panels;
+    }
+
+    /**
+     * Filter to customize OAI-PMH repository metadata formats.
+     *
+     * @param array $formats
+     * @return array
+     */
+    public function filterOaiPmhRepositoryMetadataFormats($formats)
+    {
+        if (get_option('oaipmh_repository_custom_oai_dc')) {
+            $formats['oai_dc']['class'] = 'OaiPmhRepository_Metadata_OaiDcCustom';
+        }
+        return $formats;
     }
 
     private function _getServerName()
