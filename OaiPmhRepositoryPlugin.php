@@ -47,6 +47,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'oaipmh_repository_base_url' => 'oai-pmh-repository/request',
         'oaipmh_repository_name' => 'omeka',
         'oaipmh_repository_namespace_id' => 'default.must.change',
+        'oaipmh_repository_expose_set' => 'itemset',
         'oaipmh_repository_expose_files' => true,
         'oaipmh_repository_expose_empty_collections' => true,
         'oaipmh_repository_expose_item_type' => false,

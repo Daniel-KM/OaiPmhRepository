@@ -407,56 +407,97 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
      */
     private function listSets()
     {
-        $db = get_db();
-        if ((bool) get_option('oaipmh_repository_expose_empty_collections')) {
-            $collections = get_db()->getTable('Collection')
-                ->findBy(array('public' => '1'));
-        } else {
-            $select = new Omeka_Db_Select();
-            $select
-                ->from(array('collections' => $db->Collection))
-                ->joinInner(array('items' => $db->Item), 'collections.id = items.collection_id', array())
-                ->where('collections.public = 1')
-                ->where('items.public = 1')
-                ->group('collections.id');
-            $collections = get_db()->getTable('Collection')->fetchObjects($select);
+        $expose = get_option('oaipmh_repository_expose_set');
+        if (!$expose || $expose === 'none') {
+            $this->throwError(self::OAI_ERR_NO_SET_HIERARCHY);
+            return;
         }
 
-        if (count($collections) == 0) {
+        $db = get_db();
+        $sets = array();
+        if (in_array($expose, array('itemset', 'itemset_itemtype'))) {
+            if ((bool) get_option('oaipmh_repository_expose_empty_collections')) {
+                $collections = get_db()->getTable('Collection')
+                    ->findBy(array('public' => '1'));
+            } else {
+                $select = new Omeka_Db_Select();
+                $select
+                    ->from(array('collections' => $db->Collection))
+                    ->joinInner(array('items' => $db->Item), 'collections.id = items.collection_id', array())
+                    ->where('collections.public = 1')
+                    ->where('items.public = 1')
+                    ->group('collections.id');
+                $collections = get_db()->getTable('Collection')->fetchObjects($select);
+            }
+
+            foreach ($collections as $collection) {
+                $name = metadata(
+                    $collection,
+                    version_compare(OMEKA_VERSION, '2.4.1', '<') ? array('Dublin Core', 'Title') : 'display_title'
+                ) ?: __('[Untitled]');
+                $elements = array(
+                    'setSpec' => 'itemset_' . $collection->id,
+                    'setName' => $name,
+                );
+                $sets[] = array(
+                    'elements' => $elements,
+                    'description' => $this->_prepareCollectionDescription($collection),
+                );
+            }
+        }
+
+        if (in_array($expose, array('itemtype', 'itemset_itemtype'))) {
+            $table = $db->getTable('ItemType');
+            $select = $table->getSelect()
+                ->joinInner(array('items' => $db->Item), 'items.item_type_id = item_types.id', array())
+                ->where('items.public = 1')
+                ->group('item_types.id')
+                ->order('item_types.name');
+            $itemTypes = $table->fetchAll($select);
+
+            foreach ($itemTypes as $itemType) {
+                $elements = array(
+                    'setSpec' => 'type_' . $itemType['id'],
+                    'setName' => $itemType['name'],
+                );
+                $sets[] = array(
+                    'elements' => $elements,
+                    'description' => array('description' => array($itemType['description'])),
+                );
+            }
+        }
+
+        if (count($sets) == 0) {
             $this->throwError(self::OAI_ERR_NO_SET_HIERARCHY);
+            return;
         }
 
         /** @var DOMElement $listSets */
         $listSets = $this->document->createElement('ListSets');
 
-        if (!$this->error) {
-            $this->document->documentElement->appendChild($listSets);
-            foreach ($collections as $collection) {
-                $name = metadata($collection, array('Dublin Core', 'Title')) ?: __('[Untitled]');
-                $elements = array(
-                    'setSpec' => $collection->id,
-                    'setName' => $name,
-                );
-                $set = $listSets->appendNewElementWithChildren('set', $elements);
-                $this->_addSetDescription($set, $collection);
+        if ($this->error) {
+            return;
+        }
+
+        $this->document->documentElement->appendChild($listSets);
+        foreach ($sets as $set) {
+            $oaiSet = $listSets->appendNewElementWithChildren('set', $set['elements']);
+            if (!empty($set['description'])) {
+                $this->_addSetDescription($oaiSet, $set['description']);
             }
         }
     }
 
     /**
-     * Prepare the set description for the collection / set, if any.
+     * Prepare the set description for a collection / set, if any.
      *
      * @see OaiPmhRepository_Metadata_OaiDc::appendMetadata()
      *
-     * @param DOMElement $set
      * @param Collection $collection
-     * @return DOMElement
+     * @return array
      */
-    protected function _addSetDescription(DOMElement $set, $collection)
+    protected function _prepareCollectionDescription(Collection $collection)
     {
-        // Prepare the list of Dublin Core element texts, except the first title.
-        $elementTexts = array();
-
         // List of the Dublin Core terms, needed to removed qualified ones.
         $dcTerms = array(
             'title' => 'Title',
@@ -476,6 +517,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             'rights' => 'Rights',
         );
 
+        $elementTexts = array();
         foreach ($dcTerms as $name => $elementName) {
             $elTexts = $collection->getElementTexts('Dublin Core', $elementName);
             // Remove the first title.
@@ -487,8 +529,28 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             }
         }
 
-        if (empty($elementTexts)) {
-            return $set;
+        $result = array();
+        foreach ($elementTexts as $name => $elTexts) {
+            foreach ($elTexts as $elementText) {
+                $result[$name][] = $elementText->text;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Append the set description for the oai set, if any.
+     *
+     * @see OaiPmhRepository_Metadata_OaiDc::appendMetadata()
+     *
+     * @param DOMElement $set
+     * @param array $values
+     * @return DOMElement|null
+     */
+    protected function _addSetDescription(DOMElement $set, $values)
+    {
+        if (empty($values)) {
+            return null;
         }
 
         $setDescription = $this->document->createElement('setDescription');
@@ -505,11 +567,13 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             OaiPmhRepository_Metadata_OaiDc::METADATA_SCHEMA
         );
 
-        foreach ($elementTexts as $name => $elTexts) {
-            foreach ($elTexts as $elementText) {
-                $oai_dc->appendNewElement('dc:' . $name, $elementText->text);
+        foreach ($values as $name => $texts) {
+            foreach ($texts as $text) {
+                $oai_dc->appendNewElement('dc:' . $name, $text);
             }
         }
+
+        return $oai_dc;
     }
 
     /**
@@ -588,32 +652,32 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $listLimit = $this->_listLimit;
 
         $db = get_db();
+        /** @var Table_Item $itemTable */
         $itemTable = $db->getTable('Item');
         $select = $itemTable->getSelect();
         $alias = $itemTable->getTableAlias();
+
         $itemTable->filterByPublic($select, true);
+
         if ($set) {
-            $itemTable->filterByCollection($select, $set);
+            $expose = get_option('oaipmh_repository_expose_set');
+            if (strpos($set, 'itemset_') === 0 && in_array($expose, array('itemset', 'itemset_itemtype'))) {
+                $itemTable->filterByCollection($select, substr($set, 8));
+            } elseif (strpos($set, 'type_') === 0 && in_array($expose, array('itemtype', 'itemset_itemtype'))) {
+                $itemTable->filterByItemType($select, substr($set, 5));
+            } else {
+                $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
+                return;
+            }
         }
 
-        $modifiedClause = $addedClause = '';
         if ($from) {
-            $quotedFromDate = $db->quote($from);
-            $modifiedClause = "$alias.modified >= $quotedFromDate";
-            $addedClause = "$alias.added >= $quotedFromDate";
+            $select->where("$alias.modified >= ? OR $alias.added >= ?", $from);
+            $select->group("$alias.id");
         }
         if ($until) {
-            if ($from) {
-                $modifiedClause .= ' AND ';
-                $addedClause .= ' AND ';
-            }
-            $quotedUntilDate = $db->quote($until);
-            $modifiedClause .= "$alias.modified < $quotedUntilDate";
-            $addedClause .= "$alias.added < $quotedUntilDate";
-        }
-
-        if ($from || $until) {
-            $select->where("($modifiedClause) OR ($addedClause)");
+            $select->where("$alias.modified < ? OR $alias.added < ?", $until);
+            $select->group("$alias.id");
         }
 
         // Total number of rows that would be returned
@@ -684,9 +748,18 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $headerData['identifier'] = OaiPmhRepository_Plugin_OaiIdentifier::itemToOaiId($item->id);
         $headerData['datestamp'] = OaiPmhRepository_Plugin_Date::dbToUtc($item->modified);
 
-        $collection = $item->getCollection();
-        if ($collection && $collection->public) {
-            $headerData['setSpec'] = $collection->id;
+        $expose = get_option('oaipmh_repository_expose_set');
+        if (in_array($expose, array('itemset', 'itemset_itemtype'))) {
+            $collection = $item->getCollection();
+            if ($collection && $collection->public) {
+                $headerData['setSpec'] = 'itemset_' . $collection->id;
+            }
+        }
+        if (in_array($expose, array('itemtype', 'itemset_itemtype'))) {
+            $itemType = $item->getItemType();
+            if ($itemType) {
+                $headerData['setSpec'] = 'type_' . $itemType->id;
+            }
         }
 
         $parentElement->appendNewElementWithChildren('header', $headerData);

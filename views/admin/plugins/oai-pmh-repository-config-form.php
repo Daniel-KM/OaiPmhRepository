@@ -65,6 +65,25 @@
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
+            'oaipmh_repository_expose_set',
+            __('Expose sets')
+        ); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <?php echo $this->formRadio('oaipmh_repository_expose_set',
+            get_option('oaipmh_repository_expose_set'),
+            null,
+            array(
+                'none' => __('None'),
+                'itemset' => __('Collections'),
+                'itemtype' => __('Item types'),
+                'itemset_itemtype' => __('Collections and Item types'),
+            )); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $this->formLabel(
             'oaipmh_repository_expose_files',
             _('Expose files')
         ); ?>
