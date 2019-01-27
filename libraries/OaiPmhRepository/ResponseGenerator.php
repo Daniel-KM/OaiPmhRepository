@@ -476,23 +476,39 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         if (in_array($expose, array('dctype', 'itemset_dctype'))) {
             $table = $db->getTable('Items');
+            // Since there is no id, one is created from the lower case value.
+            // It cannot be a hash, since it should be searchable.
+            // According to specs, it can be anything, but must not use ":".
+            // It must contain only unreserved character (alphanumeric and "-_.!~*'()").
+            // Since space are not allowed, they are converted into "_", so this
+            // character is forbidden too in this current implementation.
+            // @see https://www.ietf.org/rfc/rfc2396.txt 2.3
+            // Max size of the column in database is 190.
+            // So some value can be skipped.
+            // @see https://www.openarchives.org/OAI/openarchivesprotocol.html#Set
             $select = $table->getSelect()
                 ->reset(Zend_Db_Select::COLUMNS)
                 ->columns(array('DISTINCT(element_texts.text)'))
                 ->joinInner(array('element_texts' => $db->ElementText), 'element_texts.record_id = items.id', array())
                 ->where('items.public = 1')
                 ->where('element_texts.element_id = ' . $this->dcTypeId)
+                ->where('LENGTH(element_texts.text) <= 190')
+                ->where('element_texts.text NOT LIKE "%:%"')
+                ->where('element_texts.text NOT LIKE "%\_%"')
                 ->group('element_texts.text')
                 ->order('element_texts.text');
             $dcTypes = $table->fetchCol($select);
             foreach ($dcTypes as $dcType) {
-                // Since there is no id, one is created from the lower case value.
-                // It cannot be a hash, since it should be searchable.
-                // It cannot contains symbols, it's a simple identifier.
-                // $name = substr(md5(preg_replace('/_+/', '_', preg_replace('/[^a-z0-9]/', '_', strtolower($dcType)))), 0, 5);
-                $name = preg_replace('/_+/', '_', preg_replace('/[^a-z0-9]/', '_', strtolower($dcType)));
+                $unspacedName = str_replace(' ', '_', $dcType);
+                if (preg_match("/[^A-Za-z0-9_.!~*'()-]/", $unspacedName)) {
+                    _log(
+                        __('OAI-PMH Repository: dc:type "%s" contains diacritic or disallowed characters.', $dcType),
+                        Zend_Log::WARN
+                    );
+                    continue;
+                }
                 $elements = array(
-                    'setSpec' => 'dctype_' . $name,
+                    'setSpec' => rawurlencode($unspacedName),
                     'setName' => $dcType,
                 );
                 $sets[] = array(
@@ -702,16 +718,20 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             } elseif (strpos($set, 'type_') === 0 && in_array($expose, array('itemtype', 'itemset_itemtype'))) {
                 $itemType = substr($set, 5);
                 $itemTable->filterByItemType($select, $itemType);
-            } elseif (strpos($set, 'dctype_') === 0 && in_array($expose, array('dctype', 'itemset_dctype'))) {
-                $value = substr($set, 7);
+            } elseif (in_array($expose, array('dctype', 'itemset_dctype'))) {
+                $value = str_replace('_', ' ', rawurldecode($set));
+                if (strlen($value) > 190 || strpos($value, ':') !== false) {
+                    $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
+                    return;
+                }
                 $itemTable->filterBySearch($select, array(
                     'advanced' => array(
                         array(
                             'element_id' => $this->dcTypeId,
-                            'type' => 'matches',
-                            'terms' => str_replace('_', '%', $value),
+                            'type' => 'is exactly',
+                            'terms' => $value,
                         ),
-                    )
+                    ),
                 ));
             } else {
                 $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
@@ -795,22 +815,43 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $headerData = array();
         $headerData['identifier'] = OaiPmhRepository_Plugin_OaiIdentifier::itemToOaiId($item->id);
         $headerData['datestamp'] = OaiPmhRepository_Plugin_Date::dbToUtc($item->modified);
+        $setSpecs = array();
 
         $expose = get_option('oaipmh_repository_expose_set');
-        if (in_array($expose, array('itemset', 'itemset_itemtype'))) {
+        if (in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'))) {
             $collection = $item->getCollection();
             if ($collection && $collection->public) {
-                $headerData['setSpec'] = 'itemset_' . $collection->id;
+                $setSpecs[] = 'itemset_' . $collection->id;
             }
         }
         if (in_array($expose, array('itemtype', 'itemset_itemtype'))) {
             $itemType = $item->getItemType();
             if ($itemType) {
-                $headerData['setSpec'] = 'type_' . $itemType->id;
+                $setSpecs[] = 'type_' . $itemType->id;
+            }
+        }
+        if (in_array($expose, array('dctype', 'itemset_dctype'))) {
+            $dcTypes = metadata($item, array('Dublin Core', 'Type'), array('all' => true));
+            foreach ($dcTypes as $dcType) {
+                // dc:type should be shorter than 190 and without ":" and "_".
+                // @see listSets()
+                if (strlen($dcType) <= 190
+                    && strpos($dcType, ':') === false
+                    && strpos($dcType, '_') === false
+                ) {
+                    $unspacedName = str_replace(' ', '_', $dcType);
+                    if (preg_match("/^[A-Za-z0-9_.!~*'()-]+$/", $unspacedName)) {
+                        $setSpecs[] = rawurlencode($unspacedName);
+                    }
+                }
             }
         }
 
-        $parentElement->appendNewElementWithChildren('header', $headerData);
+        $element = $parentElement->appendNewElementWithChildren('header', $headerData);
+        foreach ($setSpecs as $setSpec) {
+            $setSpec = $this->document->createElement('setSpec', $setSpec);
+            $element->appendChild($setSpec);
+        }
     }
 
     /**
