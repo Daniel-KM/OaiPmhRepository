@@ -13,7 +13,7 @@
  */
 ?>
 
-<fieldset id="fieldset-oaipmhrepository"><legend><?php echo __('OAI-PMH Repository'); ?></legend>
+<fieldset id="fieldset-oaipmhrepository-identification"><legend><?php echo __('Identification'); ?></legend>
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
@@ -62,6 +62,9 @@
         <?php echo $this->formText('oaipmh_repository_namespace_id', get_option('oaipmh_repository_namespace_id')); ?>
     </div>
 </div>
+</fieldset>
+
+<fieldset id="fieldset-oaipmhrepository-expose"><legend><?php echo __('Exposition'); ?></legend>
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
@@ -156,6 +159,9 @@
         ); ?>
     </div>
 </div>
+</fieldset>
+
+<fieldset id="fieldset-oaipmhrepository-custom"><legend><?php echo __('Custom'); ?></legend>
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
@@ -191,6 +197,9 @@
         <?php echo $this->formText('oaipmh_repository_custom_default_language', get_option('oaipmh_repository_custom_default_language')); ?>
     </div>
 </div>
+</fieldset>
+
+<fieldset id="fieldset-oaipmhrepository-inteface"><legend><?php echo __('Interface'); ?></legend>
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
