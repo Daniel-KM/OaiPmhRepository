@@ -13,7 +13,7 @@
  * @package OaiPmhRepository
  * @subpackage Libraries
  */
-class OaiPmhRepository_OaiXmlGeneratorAbstract
+class OaiPmhRepository_AbstractXmlGenerator
 {
     // =========================
     // General OAI-PMH constants

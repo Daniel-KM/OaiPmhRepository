@@ -14,7 +14,7 @@
  * @package OaiPmhRepository
  * @subpackage Libraries
  */
-class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGeneratorAbstract
+class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGenerator
 {
     /**
      * HTTP query string or POST vars formatted as an associative array.
