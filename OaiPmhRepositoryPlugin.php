@@ -26,6 +26,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
      */
     protected $_hooks = array(
         'install',
+        'upgrade',
         'uninstall',
         'config_form',
         'config',
@@ -86,13 +87,29 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
             `cursor` INT(10) UNSIGNED NOT NULL,
             `from` DATETIME DEFAULT NULL,
             `until` DATETIME DEFAULT NULL,
-            `set` INT(10) UNSIGNED DEFAULT NULL,
+            `set` VARCHAR(190) NULL,
             `expiration` DATETIME NOT NULL,
             PRIMARY KEY  (`id`),
             INDEX(`expiration`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
         ";
         $db->query($sql);
+    }
+
+    /**
+     * Upgrade the plugin.
+     */
+    public function hookUpgrade($args)
+    {
+        $oldVersion = $args['old_version'];
+        $db = $this->_db;
+
+        if (version_compare($oldVersion, '2.3.0', '<')) {
+            $sql = "ALTER TABLE `{$db->prefix}oai_pmh_repository_tokens` CHANGE `set` `set` VARCHAR(190) NULL AFTER `until`;";
+            $db->query($sql);
+            $sql = "UPDATE `{$db->prefix}oai_pmh_repository_tokens` SET `set` = CONCAT('itemset_', `set`);";
+            $db->query($sql);
+        }
     }
 
     /**
