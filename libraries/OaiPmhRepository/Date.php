@@ -7,18 +7,17 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-
 /**
  * Class containing static functions for date tasks.
  *
  * @package OaiPmhRepository
  * @subpackage Libraries
  */
-class OaiPmhRepository_Date {
-
+class OaiPmhRepository_Date
+{
     const OAI_DATE_PCRE     = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
     const OAI_DATETIME_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}Z$/";
-    
+
     const OAI_GRANULARITY_STRING   = 'YYYY-MM-DDThh:mm:ssZ';
     const OAI_GRANULARITY_DATE     = 1;
     const OAI_GRANULARITY_DATETIME = 2;
@@ -29,7 +28,7 @@ class OaiPmhRepository_Date {
      */
     const OAI_DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
     const DB_DATE_FORMAT  = 'Y-m-d H:i:s';
-    
+
     /**
      * Converts the given Unix timestamp to OAI-PMH's specified ISO 8601 format.
      *
@@ -40,7 +39,7 @@ class OaiPmhRepository_Date {
     {
         return gmdate(self::OAI_DATE_FORMAT, $timestamp);
     }
-    
+
     /**
      * Converts the given Unix timestamp to the Omeka DB's datetime format.
      *
@@ -49,7 +48,7 @@ class OaiPmhRepository_Date {
      */
     public static function unixToDb($timestamp)
     {
-       return date(self::DB_DATE_FORMAT, $timestamp);
+        return date(self::DB_DATE_FORMAT, $timestamp);
     }
 
     /**
@@ -64,7 +63,7 @@ class OaiPmhRepository_Date {
     {
         return self::unixToUtc(strtotime($databaseTime));
     }
-    
+
     /**
      * Converts the given time string to the Omeka database's format.
      *
@@ -104,7 +103,7 @@ class OaiPmhRepository_Date {
     {
         if (preg_match(self::OAI_DATE_PCRE, $dateTime)) {
             return self::OAI_GRANULARITY_DATE;
-        } else if (preg_match(self::OAI_DATETIME_PCRE, $dateTime)) {
+        } elseif (preg_match(self::OAI_DATETIME_PCRE, $dateTime)) {
             return self::OAI_GRANULARITY_DATETIME;
         } else {
             return false;

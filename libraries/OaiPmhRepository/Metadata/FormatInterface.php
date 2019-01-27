@@ -14,7 +14,7 @@
  * @subpackage Metadata Formats
  */
 interface OaiPmhRepository_Metadata_FormatInterface
-{    
+{
     /**
      * Appends the metadata for one Omeka item to the XML document.
      *

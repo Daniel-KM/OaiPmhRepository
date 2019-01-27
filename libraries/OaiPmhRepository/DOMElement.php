@@ -15,7 +15,7 @@
 class OaiPmhRepository_DOMElement extends DOMElement
 {
     const XML_SCHEMA_NAMESPACE_URI = 'http://www.w3.org/2001/XMLSchema-instance';
-    
+
     /**
      * Creates a new XML element with the specified children
      *
@@ -31,8 +31,7 @@ class OaiPmhRepository_DOMElement extends DOMElement
     {
         $document = $this->ownerDocument;
         $newElement = $document->createElement($name);
-        foreach($children as $tag => $value)
-        {
+        foreach ($children as $tag => $value) {
             if (is_array($value)) {
                 $newElement->appendNewElementWithChildren($tag, $value);
             } else {
@@ -42,9 +41,9 @@ class OaiPmhRepository_DOMElement extends DOMElement
         $this->appendChild($newElement);
         return $newElement;
     }
-    
+
     /**
-     * Creates a parent element with the given name, with text as given.  
+     * Creates a parent element with the given name, with text as given.
      *
      * Adds the resulting element as a child of this element.
      *

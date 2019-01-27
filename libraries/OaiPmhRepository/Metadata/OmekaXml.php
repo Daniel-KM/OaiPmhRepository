@@ -6,7 +6,6 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-
 /**
  * Class implmenting metadata output for the required oai_dc metadata format.
  * oai_dc is output of the 15 unqualified Dublin Core fields.
@@ -36,4 +35,3 @@ class OaiPmhRepository_Metadata_OmekaXml implements OaiPmhRepository_Metadata_Fo
         $metadataElement->appendChild($node);
     }
 }
-

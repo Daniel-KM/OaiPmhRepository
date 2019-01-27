@@ -18,23 +18,23 @@ class OaiPmhRepository_OaiXmlGeneratorAbstract
     // =========================
     // General OAI-PMH constants
     // =========================
-    
-    const OAI_PMH_NAMESPACE_URI    = 'http://www.openarchives.org/OAI/2.0/';
-    const OAI_PMH_SCHEMA_URI       = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd';
+
+    const OAI_PMH_NAMESPACE_URI = 'http://www.openarchives.org/OAI/2.0/';
+    const OAI_PMH_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd';
     const OAI_PMH_PROTOCOL_VERSION = '2.0';
-    
+
     // =========================
     // Error codes
     // =========================
-    
-    const OAI_ERR_BAD_ARGUMENT              = 'badArgument';
-    const OAI_ERR_BAD_RESUMPTION_TOKEN      = 'badResumptionToken';
-    const OAI_ERR_BAD_VERB                  = 'badVerb';
+
+    const OAI_ERR_BAD_ARGUMENT = 'badArgument';
+    const OAI_ERR_BAD_RESUMPTION_TOKEN = 'badResumptionToken';
+    const OAI_ERR_BAD_VERB = 'badVerb';
     const OAI_ERR_CANNOT_DISSEMINATE_FORMAT = 'cannotDisseminateFormat';
-    const OAI_ERR_ID_DOES_NOT_EXIST         = 'idDoesNotExist';
-    const OAI_ERR_NO_RECORDS_MATCH          = 'noRecordsMatch';
-    const OAI_ERR_NO_METADATA_FORMATS       = 'noMetadataFormats';
-    const OAI_ERR_NO_SET_HIERARCHY          = 'noSetHierarchy';
+    const OAI_ERR_ID_DOES_NOT_EXIST = 'idDoesNotExist';
+    const OAI_ERR_NO_RECORDS_MATCH = 'noRecordsMatch';
+    const OAI_ERR_NO_METADATA_FORMATS = 'noMetadataFormats';
+    const OAI_ERR_NO_SET_HIERARCHY = 'noSetHierarchy';
 
     // =========================
     // Date/time constants
@@ -62,7 +62,7 @@ class OaiPmhRepository_OaiXmlGeneratorAbstract
      * @var DOMDocument
      */
     protected $document;
-    
+
     /**
      * Throws an OAI-PMH error on the given response.
      *
@@ -80,7 +80,7 @@ class OaiPmhRepository_OaiXmlGeneratorAbstract
         $this->document->documentElement->appendChild($errorElement);
         $errorElement->setAttribute('code', $error);
     }
-    
+
     /**
      * Get the DOMDocument for this generator.
      *

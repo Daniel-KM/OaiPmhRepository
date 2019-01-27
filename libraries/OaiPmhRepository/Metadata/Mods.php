@@ -16,16 +16,16 @@
 class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_FormatInterface
 {
     /** OAI-PMH metadata prefix */
-    const METADATA_PREFIX = 'mods';    
-    
+    const METADATA_PREFIX = 'mods';
+
     /** XML namespace for output format */
     const METADATA_NAMESPACE = 'http://www.loc.gov/mods/v3';
-    
+
     /** XML schema for output format */
     const METADATA_SCHEMA = 'http://www.loc.gov/standards/mods/v3/mods-3-3.xsd';
-    
+
     /**
-     * Appends MODS metadata. 
+     * Appends MODS metadata.
      *
      * Appends a metadata element, an child element with the required format,
      * and further children for each of the Dublin Core fields present in the
@@ -37,69 +37,63 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
     {
         $document = $metadataElement->ownerDocument;
         $mods = $document->createElementNS(
-            self::METADATA_NAMESPACE, 'mods');
+            self::METADATA_NAMESPACE,
+            'mods'
+        );
         $metadataElement->appendChild($mods);
 
         $mods->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
-            
-        $titles = $item->getElementTexts( 'Dublin Core','Title');
-        foreach($titles as $title)
-        {
+
+        $titles = $item->getElementTexts('Dublin Core', 'Title');
+        foreach ($titles as $title) {
             $titleInfo = $mods->appendNewElement('titleInfo');
             $titleInfo->appendNewElement('title', $title->text);
         }
-        
-        $creators = $item->getElementTexts('Dublin Core','Creator');
-        foreach($creators as $creator)
-        {
+
+        $creators = $item->getElementTexts('Dublin Core', 'Creator');
+        foreach ($creators as $creator) {
             $name = $mods->appendNewElement('name');
             $name->appendNewElement('namePart', $creator->text);
             $role = $name->appendNewElement('role');
             $roleTerm = $role->appendNewElement('roleTerm', 'creator');
             $roleTerm->setAttribute('type', 'text');
         }
-        
-        $contributors = $item->getElementTexts('Dublin Core','Contributor');
-        foreach($contributors as $contributor)
-        {
+
+        $contributors = $item->getElementTexts('Dublin Core', 'Contributor');
+        foreach ($contributors as $contributor) {
             $name = $mods->appendNewElement('name');
             $name->appendNewElement('namePart', $contributor->text);
             $role = $name->appendNewElement('role');
             $roleTerm = $role->appendNewElement('roleTerm', 'contributor');
             $roleTerm->setAttribute('type', 'text');
         }
-        
-        $subjects = $item->getElementTexts('Dublin Core','Subject');
-        foreach($subjects as $subject)
-        {
+
+        $subjects = $item->getElementTexts('Dublin Core', 'Subject');
+        foreach ($subjects as $subject) {
             $subjectTag = $mods->appendNewElement('subject');
             $subjectTag->appendNewElement('topic', $subject->text);
         }
-        
-        $descriptions = $item->getElementTexts('Dublin Core','Description');
-        foreach($descriptions as $description)
-        {
+
+        $descriptions = $item->getElementTexts('Dublin Core', 'Description');
+        foreach ($descriptions as $description) {
             $mods->appendNewElement('note', $description->text);
         }
-        
-        $formats = $item->getElementTexts('Dublin Core','Format');
-        foreach($formats as $format)
-        {
+
+        $formats = $item->getElementTexts('Dublin Core', 'Format');
+        foreach ($formats as $format) {
             $physicalDescription = $mods->appendNewElement('physicalDescription');
             $physicalDescription->appendNewElement('form', $format->text);
         }
-        
-        $languages = $item->getElementTexts('Dublin Core','Language');
-        foreach($languages as $language)
-        {
+
+        $languages = $item->getElementTexts('Dublin Core', 'Language');
+        foreach ($languages as $language) {
             $languageElement = $mods->appendNewElement('language');
             $languageTerm = $languageElement->appendNewElement('languageTerm', $language->text);
             $languageTerm->setAttribute('type', 'text');
         }
-        
-        $rights = $item->getElementTexts('Dublin Core','Rights');
-        foreach($rights as $right)
-        {
+
+        $rights = $item->getElementTexts('Dublin Core', 'Rights');
+        foreach ($rights as $right) {
             $mods->appendNewElement('accessCondition', $right->text);
         }
 
@@ -108,16 +102,14 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
             $mods->appendNewElement('genre', $dcType);
         }
 
-        $types = $item->getElementTexts('Dublin Core','Type');
-        foreach ($types as $type)
-        {
+        $types = $item->getElementTexts('Dublin Core', 'Type');
+        foreach ($types as $type) {
             $mods->appendNewElement('genre', $type->text);
         }
 
 
-        $identifiers = $item->getElementTexts( 'Dublin Core','Identifier');
-        foreach ($identifiers as $identifier)
-        {
+        $identifiers = $item->getElementTexts('Dublin Core', 'Identifier');
+        foreach ($identifiers as $identifier) {
             $text = $identifier->text;
             $idElement = $mods->appendNewElement('identifier', $text);
             if ($this->_isUrl($text)) {
@@ -127,15 +119,13 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
             }
         }
 
-        $sources = $item->getElementTexts('Dublin Core','Source');
-        foreach ($sources as $source)
-        {
+        $sources = $item->getElementTexts('Dublin Core', 'Source');
+        foreach ($sources as $source) {
             $this->_addRelatedItem($mods, $source->text, true);
         }
 
-        $relations = $item->getElementTexts('Dublin Core','Relation');
-        foreach ($relations as $relation)
-        {
+        $relations = $item->getElementTexts('Dublin Core', 'Relation');
+        foreach ($relations as $relation) {
             $this->_addRelatedItem($mods, $relation->text);
         }
 
@@ -143,25 +133,22 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
         $url = $location->appendNewElement('url', record_url($item, 'show', true));
         $url->setAttribute('usage', 'primary display');
 
-        $publishers = $item->getElementTexts('Dublin Core','Publisher');
-        $dates = $item->getElementTexts('Dublin Core','Date');
+        $publishers = $item->getElementTexts('Dublin Core', 'Publisher');
+        $dates = $item->getElementTexts('Dublin Core', 'Date');
 
         // Empty originInfo sections are illegal
-        if(count($publishers) + count($dates) > 0) 
-        {
+        if (count($publishers) + count($dates) > 0) {
             $originInfo = $mods->appendNewElement('originInfo');
-        
-            foreach($publishers as $publisher)
-            {
+
+            foreach ($publishers as $publisher) {
                 $originInfo->appendNewElement('publisher', $publisher->text);
             }
 
-            foreach($dates as $date)
-            {
+            foreach ($dates as $date) {
                 $originInfo->appendNewElement('dateOther', $date->text);
             }
         }
-        
+
         $recordInfo = $mods->appendNewElement('recordInfo');
         $recordInfo->appendNewElement('recordIdentifier', $item->id);
     }

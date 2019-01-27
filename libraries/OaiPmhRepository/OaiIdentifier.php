@@ -18,61 +18,68 @@
  * @package OaiPmhRepository
  * @subpackage Libraries
  */
-class OaiPmhRepository_OaiIdentifier {
+class OaiPmhRepository_OaiIdentifier
+{
     const OAI_IDENTIFIER_NAMESPACE_URI = 'http://www.openarchives.org/OAI/2.0/oai-identifier';
     const OAI_IDENTIFIER_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd';
-    
+
     private static $namespaceId;
-    
-    public static function initializeNamespace($namespaceId) {
+
+    public static function initializeNamespace($namespaceId)
+    {
         self::$namespaceId = $namespaceId;
     }
-    
+
     /**
      * Converts the given OAI identifier to an Omeka item ID.
      *
      * @param string $oaiId OAI identifier.
      * @return string Omeka item ID.
      */
-    public static function oaiIdToItem($oaiId) {
+    public static function oaiIdToItem($oaiId)
+    {
         $scheme = strtok($oaiId, ':');
         $namespaceId = strtok(':');
         $localId = strtok(':');
         if ($scheme != 'oai' || $namespaceId != self::$namespaceId || $localId < 0) {
-           return NULL;
+            return null;
         }
         return $localId;
     }
-    
+
     /**
      * Converts the given Omeka item ID to a OAI identifier.
      *
      * @param mixed $itemId Omeka item ID.
      * @return string OAI identifier.
      */
-    public static function itemToOaiId($itemId) {
+    public static function itemToOaiId($itemId)
+    {
         return 'oai:' . self::$namespaceId . ':' . $itemId;
     }
-    
+
     /**
      * Outputs description element child describing the repository's OAI
      * identifier implementation.
      *
      * @param DOMElement $parentElement Parent DOM element for XML output
      */
-    public static function describeIdentifier($parentElement) {
+    public static function describeIdentifier($parentElement)
+    {
         $elements = array(
-            'scheme'               => 'oai',
+            'scheme' => 'oai',
             'repositoryIdentifier' => self::$namespaceId,
-            'delimiter'            => ':',
-            'sampleIdentifier'     => self::itemtoOaiId(1)
+            'delimiter' => ':',
+            'sampleIdentifier' => self::itemtoOaiId(1),
         );
         $oaiIdentifier = $parentElement->appendNewElementWithChildren('oai-identifier', $elements);
-        
-        //must set xmlns attribute manually to avoid DOM extension appending 
+
+        //must set xmlns attribute manually to avoid DOM extension appending
         //default: prefix to element name
         $oaiIdentifier->setAttribute('xmlns', self::OAI_IDENTIFIER_NAMESPACE_URI);
-        $oaiIdentifier->setAttribute('xsi:schemaLocation',
-            self::OAI_IDENTIFIER_NAMESPACE_URI . ' ' . self::OAI_IDENTIFIER_SCHEMA_URI);
-   }
+        $oaiIdentifier->setAttribute(
+            'xsi:schemaLocation',
+            self::OAI_IDENTIFIER_NAMESPACE_URI . ' ' . self::OAI_IDENTIFIER_SCHEMA_URI
+        );
+    }
 }

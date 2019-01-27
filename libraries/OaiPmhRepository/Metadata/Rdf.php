@@ -36,7 +36,9 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
     {
         $document = $metadataElement->ownerDocument;
         $rdf = $document->createElementNS(
-            self::METADATA_NAMESPACE, 'rdf:RDF');
+            self::METADATA_NAMESPACE,
+            'rdf:RDF'
+        );
         $metadataElement->appendChild($rdf);
 
         $rdf->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);

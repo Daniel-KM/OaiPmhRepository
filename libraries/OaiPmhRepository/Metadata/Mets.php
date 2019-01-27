@@ -38,7 +38,9 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
     {
         $document = $metadataElement->ownerDocument;
         $mets = $document->createElementNS(
-            self::METADATA_NAMESPACE, 'mets');
+            self::METADATA_NAMESPACE,
+            'mets'
+        );
         $metadataElement->appendChild($mets);
 
         $mets->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
@@ -49,22 +51,23 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
         $itemDmdId = 'dmd-' . $item->id;
         $metadataSection->setAttribute('ID', $itemDmdId);
         $dcWrap = $metadataSection->appendNewElement('mdWrap');
-        $dcWrap->setAttribute('MDTYPE', 'DC');       
-        
-        
+        $dcWrap->setAttribute('MDTYPE', 'DC');
+
         $dcXml = $dcWrap->appendNewElement('xmlData');
         $dcXml->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
 
-        $dcElementNames = array( 'title', 'creator', 'subject', 'description',
-                                 'publisher', 'contributor', 'date', 'type',
-                                 'format', 'identifier', 'source', 'language',
-                                 'relation', 'coverage', 'rights' );
+        $dcElementNames = array(
+            'title', 'creator', 'subject', 'description', 'publisher',
+            'contributor', 'date', 'type', 'format', 'identifier', 'source',
+            'language', 'relation', 'coverage', 'rights',
+        );
 
-        foreach($dcElementNames as $elementName)
-        {
+        foreach ($dcElementNames as $elementName) {
             $upperName = Inflector::camelize($elementName);
             $dcElements = $item->getElementTexts(
-               'Dublin Core', $upperName);
+                'Dublin Core',
+                $upperName
+            );
 
             // Prepend the item type, if any.
             if ($elementName == 'type' && get_option('oaipmh_repository_expose_item_type')) {
@@ -74,8 +77,7 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
                 }
             }
 
-            foreach($dcElements as $elementText)
-            {
+            foreach ($dcElements as $elementText) {
                 $dcXml->appendNewElement('dc:'.$elementName, $elementText->text);
             }
         }
@@ -84,11 +86,11 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
             $fileSection = $mets->appendNewElement('fileSec');
             $fileGroup = $fileSection->appendNewElement('fileGrp');
             $fileGroup->setAttribute('USE', 'ORIGINAL');
-            
-            foreach ($item->getFiles() as $file) {               
+
+            foreach ($item->getFiles() as $file) {
                 $fileDmdId = "dmd-file-" . $file->id;
                 $fileId = 'file-' . $file->id;
-                
+
                 $fileElement = $fileGroup->appendNewElement('file');
                 $fileElement->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
                 $fileElement->setAttribute('ID', $fileId);
@@ -96,31 +98,30 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
                 $fileElement->setAttribute('CHECKSUM', $file->authentication);
                 $fileElement->setAttribute('CHECKSUMTYPE', 'MD5');
                 $fileElement->setAttribute('DMDID', $fileDmdId);
-                     
+
                 $location = $fileElement->appendNewElement('FLocat');
-                
+
                 $location->setAttribute('LOCTYPE', 'URL');
                 $location->setAttribute('xlink:type', 'simple');
                 $location->setAttribute('xlink:title', $file->original_filename);
-                $location->setAttribute('xlink:href',$file->getWebPath('original'));              
-               
+                $location->setAttribute('xlink:href', $file->getWebPath('original'));
+
                 $fileContentMetadata = $mets->appendNewElement('dmdSec');
-                $fileContentMetadata->setAttribute('ID' , $fileDmdId);
-                
+                $fileContentMetadata->setAttribute('ID', $fileDmdId);
+
                 $fileDcWrap = $fileContentMetadata->appendNewElement('mdWrap');
-                $fileDcWrap->setAttribute('MDTYPE', 'DC');         
-                
+                $fileDcWrap->setAttribute('MDTYPE', 'DC');
+
                 $fileDcXml = $fileDcWrap->appendNewElement('xmlData');
                 $fileDcXml->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-                
+
                 $fileIds[] = $fileId;
-                        
-                foreach($dcElementNames as $elementName)
-                {
+
+                foreach ($dcElementNames as $elementName) {
                     $upperName = Inflector::camelize($elementName);
-                    $dcElements = metadata($file,array('Dublin Core',$upperName));
-                     
-                    if(isset($dcElements)){
+                    $dcElements = metadata($file, array('Dublin Core',$upperName));
+
+                    if (isset($dcElements)) {
                         $fileDcXml->appendNewElement('dc:'.$elementName, $dcElements);
                     }
                 }
@@ -132,12 +133,12 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
         $structMap = $mets->appendNewElement('structMap');
         $topDiv = $structMap->appendNewElement('div');
         $topDiv->setAttribute('DMDID', $itemDmdId);
-        foreach($fileIds as $id){
+        foreach ($fileIds as $id) {
             $fptr = $topDiv->appendNewElement('fptr');
             $fptr->setAttribute('FILEID', $id);
         }
     }
-    
+
     protected function getFileMetadata($file)
     {
         $db = get_db()->getTable('ElementTexts');

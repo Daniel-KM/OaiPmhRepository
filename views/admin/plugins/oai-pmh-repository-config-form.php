@@ -14,8 +14,10 @@
 <fieldset id="fieldset-oaipmhrepository"><legend><?php echo __('OAI-PMH Repository'); ?></legend>
 <div class="field">
     <div class="two columns alpha">
-        <?php echo $this->formLabel('oaipmh_repository_base_url',
-            __('Repository base url')); ?>
+        <?php echo $this->formLabel(
+            'oaipmh_repository_base_url',
+            __('Repository base url')
+        ); ?>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">
@@ -30,8 +32,10 @@
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <?php echo $this->formLabel('oaipmh_repository_name',
-            __('Repository name')); ?>
+        <?php echo $this->formLabel(
+            'oaipmh_repository_name',
+            __('Repository name')
+        ); ?>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">
@@ -42,8 +46,10 @@
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <?php echo $this->formLabel('oaipmh_repository_namespace_id',
-            __('Namespace identifier')); ?>
+        <?php echo $this->formLabel(
+            'oaipmh_repository_namespace_id',
+            __('Namespace identifier')
+        ); ?>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">
@@ -56,56 +62,79 @@
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <?php echo $this->formLabel('oaipmh_repository_expose_files',
-            _('Expose files')); ?>
+        <?php echo $this->formLabel(
+            'oaipmh_repository_expose_files',
+            _('Expose files')
+        ); ?>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">
             <?php echo __('Whether the plugin should include identifiers for the files associated with items.');
             echo __('This provides harvesters with direct access to files.'); ?>
         </p>
-        <?php echo $this->formCheckbox('oaipmh_repository_expose_files', true,
-            array('checked' => (boolean) get_option('oaipmh_repository_expose_files'))); ?>
+        <?php echo $this->formCheckbox(
+            'oaipmh_repository_expose_files',
+            true,
+            array('checked' => (bool) get_option('oaipmh_repository_expose_files'))
+        ); ?>
     </div>
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <?php echo $this->formLabel('oaipmh_repository_expose_empty_collections',
-            __('Expose empty collections')); ?>
+        <?php echo $this->formLabel(
+            'oaipmh_repository_expose_empty_collections',
+            __('Expose empty collections')
+        ); ?>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">
             <?php echo __('Whether the plugin should expose empty public collections.'); ?>
         </p>
-        <?php echo $this->formCheckbox('oaipmh_repository_expose_empty_collections', true,
-            array('checked' => (boolean) get_option('oaipmh_repository_expose_empty_collections'))); ?>
-    </div>
+        <?php echo $this->formCheckbox(
+            'oaipmh_repository_expose_empty_collections',
+            true,
+            array('checked' => (bool) get_option('oaipmh_repository_expose_empty_collections'))
+        ); ?>
+     </div>
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <?php echo $this->formLabel('oaipmh_repository_expose_item_type',
-            __('Expose item type')); ?>
+        <?php echo $this->formLabel(
+            'oaipmh_repository_expose_item_type',
+            __('Expose item type')
+        ); ?>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">
             <?php echo __('Whether the plugin should expose the item type as Dublin Core Type.'); ?>
         </p>
-        <?php echo $this->formCheckbox('oaipmh_repository_expose_item_type', true,
-            array('checked' => (boolean) get_option('oaipmh_repository_expose_item_type'))); ?>
+        <?php echo $this->formCheckbox(
+            'oaipmh_repository_expose_item_type',
+            true,
+            array('checked' => (bool) get_option('oaipmh_repository_expose_item_type'))
+        ); ?>
     </div>
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <?php echo $this->formLabel('oaipmh_repository_add_human_stylesheet',
-            __('Human display')); ?>
+        <?php echo $this->formLabel(
+            'oaipmh_repository_add_human_stylesheet',
+            __('Human display')
+        ); ?>
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">
-            <?php echo __('If checked, a stylesheet will be added to the output, so humans will be able to browse the repository through a themable %sBootstrap%s responsive interface.',
-                    '<a href="http://getbootstrap.com/">', '</a>'); ?>
+            <?php echo __(
+                'If checked, a stylesheet will be added to the output, so humans will be able to browse the repository through a themable %sBootstrap%s responsive interface.',
+                '<a href="http://getbootstrap.com/">',
+                '</a>'
+            ); ?>
         </p>
-        <?php echo $this->formCheckbox('oaipmh_repository_add_human_stylesheet', true,
-            array('checked' => (boolean) get_option('oaipmh_repository_add_human_stylesheet'))); ?>
+        <?php echo $this->formCheckbox(
+            'oaipmh_repository_add_human_stylesheet',
+            true,
+            array('checked' => (bool) get_option('oaipmh_repository_add_human_stylesheet'))
+        ); ?>
     </div>
 </div>
 </fieldset>

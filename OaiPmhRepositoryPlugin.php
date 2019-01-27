@@ -5,11 +5,12 @@
  * @package OaiPmhRepository
  */
 
-define('OAI_PMH_BASE_URL',
-    WEB_ROOT . '/'
-    . (($baseUrl = get_option('oaipmh_repository_base_url'))
+define(
+    'OAI_PMH_BASE_URL',
+    WEB_ROOT . '/' . (($baseUrl = get_option('oaipmh_repository_base_url'))
         ? $baseUrl
-        : 'oai-pmh-repository/request'));
+        : 'oai-pmh-repository/request')
+);
 define('OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY', dirname(__FILE__));
 define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY . '/metadata');
 
@@ -149,13 +150,17 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
             return;
         }
 
-        $args['router']->addRoute('oai-pmh-repository', new Zend_Controller_Router_Route(
-            $route,
-            array(
-                'module' => 'oai-pmh-repository',
-                'controller' => 'request',
-                'action' => 'index',
-        )));
+        $args['router']->addRoute(
+            'oai-pmh-repository',
+            new Zend_Controller_Router_Route(
+                $route,
+                array(
+                    'module' => 'oai-pmh-repository',
+                    'controller' => 'request',
+                    'action' => 'index',
+                )
+            )
+        );
     }
 
     public function hookInitialize()
