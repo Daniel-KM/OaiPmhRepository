@@ -74,7 +74,9 @@ Default: false
 ### Human interface
 
 The OAI-PMH pages can be displayed and browsed with a themable responsive human
-interface based on [Bootstrap].
+interface based on [Bootstrap]. To theme it, create a directory `oai-pmh-repository/xsl` in your
+theme and copy the file [`oai-pmh-repository.xsl`] inside it, then edit it. The
+css file can be copied and updated as well.
 
 
 Advanced Configuration
@@ -254,6 +256,7 @@ See commits for full list of contributors.
 [BibLibre]: https://github.com/biblibre
 [Installing a plugin]: https://omeka.org/classic/docs/Admin/Adding_and_Managing_Plugins/
 [Bootstrap]: https://getbootstrap.com
+[`oai-pmh-repository.xsl`]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/views/public/xsl/oai-pmh-repository.xsl
 [Dublin Core]: http://dublincore.org
 [Dublin Core Terms]: http://www.dublincore.org/documents/dcmi-terms/
 [CDWA Lite]: https://www.getty.edu/research/publications/electronic_publications/cdwa/cdwalite.html
