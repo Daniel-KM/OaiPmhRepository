@@ -424,6 +424,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             return;
         }
 
+        $flatFormat = get_option('oaipmh_repository_identifier_format') === 'flat';
+
         $db = get_db();
         $sets = array();
         if (in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'))) {
@@ -450,20 +452,23 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 $spec = null;
                 switch ($itemSetIdentifier) {
                     case 'itemset_id':
-                        $spec = 'itemset_' . $collection->id;
+                        $spec = ($flatFormat ? 'itemset_' : '') . $collection->id;
                         break;
                     case 'itemset_identifier':
                         $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier')));
+                        if (empty($spec)) {
+                            continue 2;
+                        }
                         break;
                     case 'itemset_title':
                         $spec = $this->cleanSetString($name);
+                        if (empty($spec)) {
+                            continue 2;
+                        }
                         break;
                 }
-                if (empty($spec)) {
-                    continue;
-                }
                 $elements = array(
-                    'setSpec' => $spec,
+                    'setSpec' => $flatFormat ? $spec : ('itemset:' . $spec),
                     'setName' => $name,
                 );
                 $sets[] = array(
@@ -494,7 +499,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     }
                 }
                 $elements = array(
-                    'setSpec' => $spec,
+                    'setSpec' => $flatFormat ? $spec : ('type:' . $spec),
                     'setName' => $itemType['name'],
                 );
                 $sets[] = array(
@@ -548,7 +553,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             ksort($list);
             foreach ($list as $spec => $name) {
                 $elements = array(
-                    'setSpec' => $spec,
+                    'setSpec' => $flatFormat ? $spec : ('type:' . $spec),
                     'setName' => $name,
                 );
                 $sets[] = array(
@@ -752,9 +757,19 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         if ($set) {
             $expose = get_option('oaipmh_repository_expose_set');
-            $hasItemSet = in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
-            $hasItemType = in_array($expose, array('itemtype', 'itemset_itemtype'));
-            $hasDcType = in_array($expose, array('dctype', 'itemset_dctype'));
+
+            $flatFormat = get_option('oaipmh_repository_identifier_format') === 'flat';
+            if (!$flatFormat) {
+                $main = strtok($set, ':');
+                $set = strtok(':');
+                $hasItemSet = $main === 'itemset' && in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
+                $hasItemType = $main === 'type' && in_array($expose, array('itemtype', 'itemset_itemtype'));
+                $hasDcType = $main === 'type' && in_array($expose, array('dctype', 'itemset_dctype'));
+            } else {
+                $hasItemSet = in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
+                $hasItemType = in_array($expose, array('itemtype', 'itemset_itemtype'));
+                $hasDcType = in_array($expose, array('dctype', 'itemset_dctype'));
+            }
 
             $found = false;
 
@@ -762,8 +777,10 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 $itemSetIdentifier = get_option('oaipmh_repository_identifier_itemset');
                 switch ($itemSetIdentifier) {
                     case 'itemset_id':
-                        if (strpos($set, 'itemset_') === 0) {
-                            $identifier = substr($set, 8);
+                        if (($flatFormat && strpos($set, 'itemset_') === 0)
+                            || (!$flatFormat && is_numeric($set))
+                        ) {
+                            $identifier = $flatFormat ? substr($set, 8) : $set;
                             $itemTable->filterByCollection($select, $identifier);
                             $found = true;
                         }
@@ -792,8 +809,10 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 $itemTypeIdentifier = get_option('oaipmh_repository_identifier_itemtype');
                 switch ($itemTypeIdentifier) {
                     case 'itemtype_id':
-                        if (strpos($set, 'type_') === 0) {
-                            $identifier = substr($set, 5);
+                        if (($flatFormat && strpos($set, 'type_') === 0)
+                            || (!$flatFormat && is_numeric($set))
+                        ) {
+                            $identifier = $flatFormat ? substr($set, 5) : $set;
                             $itemTable->filterByItemType($select, $identifier);
                             $found = true;
                         }
@@ -917,13 +936,15 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $setSpecs = array();
 
         $expose = get_option('oaipmh_repository_expose_set');
+        $flatFormat = get_option('oaipmh_repository_identifier_format') === 'flat';
+
         if (in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'))) {
             $collection = $item->getCollection();
             if ($collection && $collection->public) {
                 $itemSetIdentifier = get_option('oaipmh_repository_identifier_itemset');
                 switch ($itemSetIdentifier) {
                     case 'itemset_id':
-                        $spec = 'itemset_' . $collection->id;
+                        $spec = ($flatFormat ? 'itemset_' : '') . $collection->id;
                         break;
                     case 'itemset_identifier':
                         $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier')));
@@ -937,7 +958,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                         break;
                 }
                 if ($spec) {
-                    $setSpecs[] = $spec;
+                    $setSpecs[] = $flatFormat ? $spec : ('itemset:' . $spec);
                 }
             }
         }
@@ -947,12 +968,12 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             if ($itemType) {
                 $itemTypeIdentifier = get_option('oaipmh_repository_identifier_itemtype');
                 if ($itemTypeIdentifier !== 'itemtype_name') {
-                    $spec = 'type_' . $itemType['id'];
+                    $spec = ($flatFormat ? 'type_' : '') . $itemType['id'];
                 } else {
                     $spec = $this->cleanSetString($itemType->name);
                 }
                 if ($spec) {
-                    $setSpecs[] = $spec;
+                    $setSpecs[] = $flatFormat ? $spec : ('type:' . $spec);
                 }
             }
         }
@@ -977,7 +998,15 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             if (get_option('oaipmh_repository_custom_oai_dc')) {
                 $list = $this->completeSetList('dc:type', $list);
             }
+
             ksort($list);
+            if (!$flatFormat) {
+                $list2 = array();
+                foreach ($list as $spec => $name) {
+                    $list2['type:' . $spec] = $name;
+                }
+                $list = $list2;
+            }
             $setSpecs = array_merge($setSpecs, array_keys($list));
         }
 
@@ -1141,6 +1170,9 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
      */
     private function fetchRecordId($identifier, $recordType, $elementId)
     {
+        if (empty($identifier)) {
+            return 0;
+        }
         $db = get_db();
         $table = $db->getTable('ElementText');
         $select = $table->getSelect()

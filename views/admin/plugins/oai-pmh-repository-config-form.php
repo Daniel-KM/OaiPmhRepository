@@ -171,6 +171,27 @@
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
+            'oaipmh_repository_identifier_format',
+            __('Format of the set identifiers')
+        ); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('When the format is hierarchic, all oai set identifiers are prefixed with the type (item set, item type or dctype).'); ?>
+            <?php echo __('When the format is flat, all oai set identifiers are simply listed and mixed.'); ?>
+        </p>
+        <?php echo $this->formRadio('oaipmh_repository_identifier_format',
+            get_option('oaipmh_repository_identifier_format'),
+            null,
+            array(
+                'tree' => __('Hierachic'),
+                'flat' => __('Flat'),
+        )); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $this->formLabel(
             'oaipmh_repository_identifier_itemset',
             __('Set identifier from collection')
         ); ?>
