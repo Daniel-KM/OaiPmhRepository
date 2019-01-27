@@ -459,7 +459,6 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                         $spec = $this->cleanSetString($name);
                         break;
                 }
-
                 if (empty($spec)) {
                     continue;
                 }
@@ -506,6 +505,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         }
 
         if (in_array($expose, array('dctype', 'itemset_dctype'))) {
+            $list = array();
             $table = $db->getTable('Items');
             // Since there is no id, one is created from the lower case value.
             // It cannot be a hash, since it should be searchable.
@@ -531,6 +531,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             $dcTypes = $table->fetchCol($select);
             foreach ($dcTypes as $dcType) {
                 $spec = $this->cleanSetString($dcType);
+                // Check spec.
                 if (empty($spec)) {
                     _log(
                         __('OAI-PMH Repository: skipped dc:type "%s": it contains unconvertable diacritic or disallowed characters.', $dcType),
@@ -538,9 +539,17 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     );
                     continue;
                 }
+                $list[$spec] = $dcType;
+            }
+
+            if (get_option('oaipmh_repository_custom_oai_dc')) {
+                $list = $this->completeSetList('dc:type', $list);
+            }
+            ksort($list);
+            foreach ($list as $spec => $name) {
                 $elements = array(
                     'setSpec' => $spec,
-                    'setName' => $dcType,
+                    'setName' => $name,
                 );
                 $sets[] = array(
                     'elements' => $elements,
@@ -803,15 +812,22 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             if (!$found && $hasDcType) {
                 $value = str_replace('_', ' ', rawurldecode($set));
                 if (strlen($value) <= 190 && strpos($value, ':') === false) {
-                    $itemTable->filterBySearch($select, array(
-                        'advanced' => array(
-                            array(
-                                'element_id' => $this->dcId['type'],
-                                'type' => 'is exactly',
-                                'terms' => $value,
-                            ),
-                        ),
-                    ));
+                    if (get_option('oaipmh_repository_custom_oai_dc')) {
+                        $values = $this->prepareSearchSetList('dc:type', $value);
+                        $values = array_merge(array($value), $values);
+                    } else {
+                        $values = array($value);
+                    }
+                    $advanced = array();
+                    foreach ($values as $value) {
+                        $advanced[] = array(
+                            'joiner' => 'or',
+                            'element_id' => $this->dcId['type'],
+                            'type' => 'is exactly',
+                            'terms' => $value,
+                        );
+                    }
+                    $itemTable->filterBySearch($select, array('advanced' => $advanced));
                     $found = true;
                 }
             }
@@ -943,6 +959,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         if (in_array($expose, array('dctype', 'itemset_dctype'))) {
             $dcTypes = metadata($item, array('Dublin Core', 'Type'), array('all' => true));
+            $list = array();
             foreach ($dcTypes as $dcType) {
                 // dc:type should be shorter than 190 and without ":" and "_".
                 // @see listSets()
@@ -952,10 +969,16 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 ) {
                     $spec = $this->cleanSetString($dcType);
                     if ($spec) {
-                        $setSpecs[] = $spec;
+                        $list[$spec] = $spec;
                     }
                 }
             }
+
+            if (get_option('oaipmh_repository_custom_oai_dc')) {
+                $list = $this->completeSetList('dc:type', $list);
+            }
+            ksort($list);
+            $setSpecs = array_merge($setSpecs, array_keys($list));
         }
 
         $element = $parentElement->appendNewElementWithChildren('header', $headerData);
@@ -1142,14 +1165,87 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
      */
     private function cleanSetString($string)
     {
-        $unspacedName = str_replace(' ', '_', $string);
+        $unspacedName = str_replace(' ', '_', strtolower($string));
         // The regex to replace html encoded diacritic by simple characters.
         // Note: mysql doesn't manage the same conversion for some alphabets.
         $regexDiacritics ='~\&([A-Za-z])(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron)\;~';
         $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
         $asciiName = preg_replace($regexDiacritics, '\1', $asciiName);
-        return preg_match("/^[A-Za-z0-9_.!~*'()-]+$/", $asciiName)
+        // The specs allows more characters, but they need to be url encoded, so
+        // it create complexity ("/^[A-Za-z0-9_.!~*'()-]+$/").
+        return preg_match('/^[A-Za-z0-9_.-]+$/', $asciiName)
             ? rawurlencode($asciiName)
             : null;
+    }
+
+    /**
+     * Complete the list of sets.
+     *
+     * To be used mainly with OaiDcCustom.
+     *
+     * @param string $term
+     * @param array $list
+     * @return array Associative array with spec and name.
+     */
+    private function completeSetList($term, $list)
+    {
+        static $customSets;
+        if (is_null($customSets)) {
+            $customSets = include PLUGIN_DIR
+                . DIRECTORY_SEPARATOR
+                . 'OaiPmhRepository'
+                . DIRECTORY_SEPARATOR
+                . 'data'
+                . DIRECTORY_SEPARATOR
+                . 'oaidc_custom_set.php';
+        }
+
+        if (empty($customSets[$term])) {
+            return $list;
+        }
+
+        $result = $list;
+        foreach ($list as $spec => $name) {
+            $name = strtolower($name);
+            if (empty($customSets[$term][$spec])) {
+                continue;
+            }
+            $result += $customSets[$term][$spec];
+        }
+        return $result;
+    }
+
+    /**
+     * Prepare the search for a value in the list of sets.
+     *
+     * To be used mainly with OaiDcCustom.
+     *
+     * @param string $term
+     * @param string $value
+     * @return array
+     */
+    private function prepareSearchSetList($term, $value)
+    {
+        static $reverted;
+        if (is_null($reverted)) {
+            $customSets = include PLUGIN_DIR
+                . DIRECTORY_SEPARATOR
+                . 'OaiPmhRepository'
+                . DIRECTORY_SEPARATOR
+                . 'data'
+                . DIRECTORY_SEPARATOR
+                . 'oaidc_custom_set.php';
+            foreach ($customSets as $term => $mapping) {
+                foreach ($mapping as $key => $map) {
+                    $key = str_replace('_', ' ', $key);
+                    foreach ($map as $name) {
+                        $reverted[$term][strtolower($name)][] = $key;
+                    }
+                }
+            }
+        }
+        return isset($reverted[$term][$value])
+            ? $reverted[$term][$value]
+            : array();
     }
 }
