@@ -59,6 +59,13 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
     protected $baseUrl;
 
     /**
+     * The value of dc:type is hard coded in the database (table elements).
+     *
+     * @var int
+     */
+    protected $dcTypeId = 51;
+
+    /**
      * Constructor
      *
      * Creates the DomDocument object, and adds XML elements common to all
@@ -415,7 +422,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         $db = get_db();
         $sets = array();
-        if (in_array($expose, array('itemset', 'itemset_itemtype'))) {
+        if (in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'))) {
             if ((bool) get_option('oaipmh_repository_expose_empty_collections')) {
                 $collections = get_db()->getTable('Collection')
                     ->findBy(array('public' => '1'));
@@ -463,6 +470,34 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 $sets[] = array(
                     'elements' => $elements,
                     'description' => array('description' => array($itemType['description'])),
+                );
+            }
+        }
+
+        if (in_array($expose, array('dctype', 'itemset_dctype'))) {
+            $table = $db->getTable('Items');
+            $select = $table->getSelect()
+                ->reset(Zend_Db_Select::COLUMNS)
+                ->columns(array('DISTINCT(element_texts.text)'))
+                ->joinInner(array('element_texts' => $db->ElementText), 'element_texts.record_id = items.id', array())
+                ->where('items.public = 1')
+                ->where('element_texts.element_id = ' . $this->dcTypeId)
+                ->group('element_texts.text')
+                ->order('element_texts.text');
+            $dcTypes = $table->fetchCol($select);
+            foreach ($dcTypes as $dcType) {
+                // Since there is no id, one is created from the lower case value.
+                // It cannot be a hash, since it should be searchable.
+                // It cannot contains symbols, it's a simple identifier.
+                // $name = substr(md5(preg_replace('/_+/', '_', preg_replace('/[^a-z0-9]/', '_', strtolower($dcType)))), 0, 5);
+                $name = preg_replace('/_+/', '_', preg_replace('/[^a-z0-9]/', '_', strtolower($dcType)));
+                $elements = array(
+                    'setSpec' => 'dctype_' . $name,
+                    'setName' => $dcType,
+                );
+                $sets[] = array(
+                    'elements' => $elements,
+                    'description' => null,
                 );
             }
         }
@@ -661,10 +696,23 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         if ($set) {
             $expose = get_option('oaipmh_repository_expose_set');
-            if (strpos($set, 'itemset_') === 0 && in_array($expose, array('itemset', 'itemset_itemtype'))) {
-                $itemTable->filterByCollection($select, substr($set, 8));
+            if (strpos($set, 'itemset_') === 0 && in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'))) {
+                $collection = substr($set, 8);
+                $itemTable->filterByCollection($select, $collection);
             } elseif (strpos($set, 'type_') === 0 && in_array($expose, array('itemtype', 'itemset_itemtype'))) {
-                $itemTable->filterByItemType($select, substr($set, 5));
+                $itemType = substr($set, 5);
+                $itemTable->filterByItemType($select, $itemType);
+            } elseif (strpos($set, 'dctype_') === 0 && in_array($expose, array('dctype', 'itemset_dctype'))) {
+                $value = substr($set, 7);
+                $itemTable->filterBySearch($select, array(
+                    'advanced' => array(
+                        array(
+                            'element_id' => $this->dcTypeId,
+                            'type' => 'matches',
+                            'terms' => str_replace('_', '%', $value),
+                        ),
+                    )
+                ));
             } else {
                 $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
                 return;

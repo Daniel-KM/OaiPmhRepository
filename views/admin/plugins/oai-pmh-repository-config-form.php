@@ -77,7 +77,9 @@
                 'none' => __('None'),
                 'itemset' => __('Collections'),
                 'itemtype' => __('Item types'),
+                'dctype' => __('Dublin Core types'),
                 'itemset_itemtype' => __('Collections and Item types'),
+                'itemset_dctype' => __('Collections and Dublin Core types'),
             )); ?>
     </div>
 </div>
