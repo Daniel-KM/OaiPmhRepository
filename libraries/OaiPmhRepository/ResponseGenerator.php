@@ -81,7 +81,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             'OaiPmhRepository_DOMElement'
         );
 
-        OaiPmhRepository_OaiIdentifier::initializeNamespace(get_option('oaipmh_repository_namespace_id'));
+        OaiPmhRepository_Plugin_OaiIdentifier::initializeNamespace(get_option('oaipmh_repository_namespace_id'));
 
         //formatOutput makes DOM output "pretty" XML.  Good for debugging, but
         //adds some overhead, especially on large outputs.
@@ -104,7 +104,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         $responseDate = $this->document->createElement(
             'responseDate',
-            OaiPmhRepository_Date::unixToUtc(time())
+            OaiPmhRepository_Plugin_Date::unixToUtc(time())
         );
         $root->appendChild($responseDate);
 
@@ -251,8 +251,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $from = $this->_getParam('from');
         $until = $this->_getParam('until');
 
-        $fromGran = OaiPmhRepository_Date::getGranularity($from);
-        $untilGran = OaiPmhRepository_Date::getGranularity($until);
+        $fromGran = OaiPmhRepository_Plugin_Date::getGranularity($from);
+        $untilGran = OaiPmhRepository_Plugin_Date::getGranularity($until);
 
         if ($from && !$fromGran) {
             $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Invalid date/time argument.");
@@ -291,7 +291,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             'adminEmail' => get_option('administrator_email'),
             'earliestDatestamp' => $this->_getEarliestDatestamp(),
             'deletedRecord' => 'no',
-            'granularity' => OaiPmhRepository_Date::OAI_GRANULARITY_STRING,
+            'granularity' => OaiPmhRepository_Plugin_Date::OAI_GRANULARITY_STRING,
         );
         $identify = $this->document->documentElement->appendNewElementWithChildren(
             'Identify',
@@ -309,7 +309,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         $description = $this->document->createElement('description');
         $identify->appendChild($description);
-        OaiPmhRepository_OaiIdentifier::describeIdentifier($description);
+        OaiPmhRepository_Plugin_OaiIdentifier::describeIdentifier($description);
 
         $toolkitDescription = $this->document->createElement('description');
         $identify->appendChild($toolkitDescription);
@@ -344,7 +344,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $identifier = $this->_getParam('identifier');
         $metadataPrefix = $this->_getParam('metadataPrefix');
 
-        $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
+        $itemId = OaiPmhRepository_Plugin_OaiIdentifier::oaiIdToItem($identifier);
 
         if (!$itemId) {
             $this->throwError(self::OAI_ERR_ID_DOES_NOT_EXIST);
@@ -377,7 +377,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $identifier = $this->_getParam('identifier');
         /* Items are not used for lookup, simply checks for an invalid id */
         if ($identifier) {
-            $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
+            $itemId = OaiPmhRepository_Plugin_OaiIdentifier::oaiIdToItem($identifier);
 
             if (!$itemId) {
                 $this->throwError(self::OAI_ERR_ID_DOES_NOT_EXIST);
@@ -527,11 +527,11 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         $from = $this->_getParam('from');
         if ($from) {
-            $fromDate = OaiPmhRepository_Date::utcToDb($from);
+            $fromDate = OaiPmhRepository_Plugin_Date::utcToDb($from);
         }
         $until = $this->_getParam('until');
         if ($until) {
-            $untilDate = OaiPmhRepository_Date::utcToDb($until, true);
+            $untilDate = OaiPmhRepository_Plugin_Date::utcToDb($until, true);
         }
 
         $this->listResponse(
@@ -655,7 +655,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 $tokenElement = $this->document->createElement('resumptionToken', $token->id);
                 $tokenElement->setAttribute(
                     'expirationDate',
-                    OaiPmhRepository_Date::dbToUtc($token->expiration)
+                    OaiPmhRepository_Plugin_Date::dbToUtc($token->expiration)
                 );
                 $tokenElement->setAttribute('completeListSize', $rows);
                 $tokenElement->setAttribute('cursor', $cursor);
@@ -681,8 +681,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
     public function appendHeader($parentElement, $item)
     {
         $headerData = array();
-        $headerData['identifier'] = OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id);
-        $headerData['datestamp'] = OaiPmhRepository_Date::dbToUtc($item->modified);
+        $headerData['identifier'] = OaiPmhRepository_Plugin_OaiIdentifier::itemToOaiId($item->id);
+        $headerData['datestamp'] = OaiPmhRepository_Plugin_Date::dbToUtc($item->modified);
 
         $collection = $item->getCollection();
         if ($collection && $collection->public) {
@@ -746,7 +746,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         if ($until) {
             $resumptionToken->until = $until;
         }
-        $resumptionToken->expiration = OaiPmhRepository_Date::unixToDb(
+        $resumptionToken->expiration = OaiPmhRepository_Plugin_Date::unixToDb(
             time() + ($this->_tokenExpirationTime * 60)
         );
         $resumptionToken->save();
@@ -831,7 +831,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             'sort_dir' => 'a',
         ));
         return $earliestItem
-            ? OaiPmhRepository_Date::dbToUtc($earliestItem->added)
-            : OaiPmhRepository_Date::unixToUtc(0);
+            ? OaiPmhRepository_Plugin_Date::dbToUtc($earliestItem->added)
+            : OaiPmhRepository_Plugin_Date::unixToUtc(0);
     }
 }

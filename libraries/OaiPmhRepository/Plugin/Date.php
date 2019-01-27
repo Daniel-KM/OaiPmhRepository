@@ -13,7 +13,7 @@
  * @package OaiPmhRepository
  * @subpackage Libraries
  */
-class OaiPmhRepository_Date
+class OaiPmhRepository_Plugin_Date
 {
     const OAI_DATE_PCRE     = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
     const OAI_DATETIME_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}Z$/";

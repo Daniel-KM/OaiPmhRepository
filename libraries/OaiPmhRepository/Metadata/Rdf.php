@@ -47,7 +47,7 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
 
         $description = $rdf->appendNewElement('rdf:Description');
 
-        $oaiId = OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id);
+        $oaiId = OaiPmhRepository_Plugin_OaiIdentifier::itemToOaiId($item->id);
         $description->setAttribute('rdf:about', $oaiId);
 
         $dcExtendedElements = array(

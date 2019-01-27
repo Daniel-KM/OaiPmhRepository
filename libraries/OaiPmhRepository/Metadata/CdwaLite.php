@@ -186,7 +186,7 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
         $recordWrap->appendNewElement('cdwalite:recordID', $item->id);
         $recordWrap->appendNewElement('cdwalite:recordType', 'item');
         $recordInfoWrap = $recordWrap->appendNewElement('cdwalite:recordInfoWrap');
-        $recordInfoID = $recordInfoWrap->appendNewElement('cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id));
+        $recordInfoID = $recordInfoWrap->appendNewElement('cdwalite:recordInfoID', OaiPmhRepository_Plugin_OaiIdentifier::itemToOaiId($item->id));
         $recordInfoID->setAttribute('cdwalite:type', 'oai');
 
         /* file link => resourceWrap->resourceSet->linkResource

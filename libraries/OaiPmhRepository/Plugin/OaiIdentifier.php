@@ -10,7 +10,7 @@
 /**
  * Utility class for dealing with OAI identifiers
  *
- * OaiPmhRepository_OaiIdentifier represents an instance of a unique identifier
+ * OaiPmhRepository_Plugin_OaiIdentifier represents an instance of a unique identifier
  * for the repository conforming to the oai-identifier recommendation.  The class
  * can parse the local ID out of a given identifier string, or create a new
  * identifier by specifing the local ID of the item.
@@ -18,7 +18,7 @@
  * @package OaiPmhRepository
  * @subpackage Libraries
  */
-class OaiPmhRepository_OaiIdentifier
+class OaiPmhRepository_Plugin_OaiIdentifier
 {
     const OAI_IDENTIFIER_NAMESPACE_URI = 'http://www.openarchives.org/OAI/2.0/oai-identifier';
     const OAI_IDENTIFIER_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd';

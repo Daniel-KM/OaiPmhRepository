@@ -22,7 +22,7 @@ class Table_OaiPmhRepositoryToken extends Omeka_Db_Table
         $db = $this->getDb();
         $db->delete(
             $this->getTableName(),
-            'expiration <= ' . $db->quote(OaiPmhRepository_Date::unixToDb(time()))
+            'expiration <= ' . $db->quote(OaiPmhRepository_Plugin_Date::unixToDb(time()))
         );
     }
 }
