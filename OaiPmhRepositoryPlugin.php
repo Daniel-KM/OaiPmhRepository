@@ -112,6 +112,19 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
             $db->query($sql);
             $sql = "UPDATE `{$db->prefix}oai_pmh_repository_tokens` SET `set` = CONCAT('itemset_', `set`);";
             $db->query($sql);
+
+            $newOptions = array(
+                'oaipmh_repository_expose_set',
+                'oaipmh_repository_expose_thumbnail',
+                'oaipmh_repository_identifier_format',
+                'oaipmh_repository_identifier_itemset',
+                'oaipmh_repository_identifier_itemtype',
+                'oaipmh_repository_custom_oai_dc',
+                'oaipmh_repository_custom_default_language',
+            );
+            foreach ($newOptions as $option) {
+                set_option($option, $this->_options[$option]);
+            }
         }
     }
 
