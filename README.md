@@ -18,13 +18,15 @@ See general end user documentation for [Installing a plugin].
 Config
 ------
 
-### Repository base url
+### Identification
+
+#### Repository base url
 
 The end point of the service.
 
 Default: oai-pmh-repository/request
 
-### Repository name
+#### Repository name
 
 Name for this OAI-PMH repository. This value is sent as part of the response to
 an Identify request, and it is how the repository will be identified by
@@ -32,7 +34,7 @@ well-behaved harvesters.
 
 Default: The name of the Omeka installation.
 
-### Namespace identifier
+#### Namespace identifier
 
 The oai-identifier specification requires repositories to specify a namespace
 identifier. This will be used to form globally unique IDs for the exposed
@@ -49,7 +51,16 @@ breaks the assumption that each identifier is globally unique. Best practice is
 to set this value to the domain name the Omeka server is published at, possibly
 with a prefix like "oai."
 
-### Expose files
+### Exposition
+
+#### Expose sets
+
+Sets allow to gather items together to simplify partial harvesting. Three types
+of sets can be use: collection, item type and Dublin Core : Type.
+
+Default: Collections
+
+#### Expose files
 
 Whether the repository should expose direct URLs to all the files associated
 with an item as part of its returned metadata. This gives harvesters the ability
@@ -57,7 +68,7 @@ to directly access the media described by the metadata.
 
 Default: true
 
-### Hide empty collections
+#### Hide empty collections
 
 Whether the plugin should expose empty collections. If enabled, only collections
 that actually contain at least one public item will be included in the ListSets
@@ -65,18 +76,73 @@ output. If disabled, all public oai sets are included in ListSets output.
 
 Default: true
 
-### Expose item type
+#### Expose item type
 
 Whether the plugin should expose the item type as Dublin Core Type.
 
 Default: false
 
-### Human interface
+#### Expose item type
+
+Whether the plugin should expose the item type as Dublin Core Type.
+
+Default: false
+
+#### Expose thumbnail
+
+The thumbnail may be exposed as Dublin Core : Relation.
+
+Default: false
+
+### Set identifiers
+
+The oai sets are identified with a unique identifier, that must be different
+between different types of sets. So, check if they are no duplicate between
+names.
+Furthermore, only some characters are allowed. Forbidden names will be skipped.
+Diacritics are removed in the names, but they can be used if they are managed
+automatically by the database and php.
+
+#### Format of the set identifiers
+
+When the format is hierarchic, all oai set identifiers are prefixed with the
+type (item set, item type or dctype). When the format is flat, all oai set
+identifiers are simply listed and mixed.
+
+Default: hierarchic
+
+#### Format of the oai set identifier for collections
+
+The format can be `itemset_id`, or the first Dublic Core identifier or title.
+
+#### Format of the oai set identifier for item types
+
+The format can be `type_id`, or the item type name.
+
+### Custom
+
+#### Output custom metadata for oai_dc
+
+Apply the custom oai_dc output. By default, it follows the recommandations of
+the [Europeana] digital library and the [Bibliothèque nationale de France].
+
+The files [`data/oaidc_custom_record.php`] and [`data/oaidc_custom_set.php`] may
+be adapted to complete data
+
+#### Default language for custom metadata
+
+This three letters language (ISO 639-2b) allows to define the default language
+of metadata in order to translate them. This option is used only to normalize
+the custom metadata.
+
+### Interface
+
+#### Human interface
 
 The OAI-PMH pages can be displayed and browsed with a themable responsive human
-interface based on [Bootstrap]. To theme it, create a directory `oai-pmh-repository/xsl` in your
-theme and copy the file [`oai-pmh-repository.xsl`] inside it, then edit it. The
-css file can be copied and updated as well.
+interface based on [Bootstrap]. To theme it, create a directory `oai-pmh-repository/xsl`
+in your theme and copy the file [`oai-pmh-repository.xsl`] inside it, then edit
+it. The css file can be copied and updated as well.
 
 
 Advanced Configuration
@@ -247,6 +313,8 @@ See commits for full list of contributors.
 * Copyright Julian Maurice for BibLibre, 2016-2017
 * Copyright Daniel Berthereau, 2014-2019 (see [Daniel-KM])
 
+Improvements of 2019 were built for [Bibliothèque Paris I Sorbonne].
+
 
 [OAI-PMH Repository]: https://github.com/Daniel-KM/Omeka-S-plugin-OaiPmhRepository
 [Omeka]: https://omeka.org/s
@@ -256,6 +324,10 @@ See commits for full list of contributors.
 [BibLibre]: https://github.com/biblibre
 [Installing a plugin]: https://omeka.org/classic/docs/Admin/Adding_and_Managing_Plugins/
 [Bootstrap]: https://getbootstrap.com
+[Europeana]: https://pro.europeana.eu/resources/apis/oai-pmh-service
+[Bibliothèque nationale de France]: http://www.BnF.fr/documents/Guide_oaipmh.pdf
+[`data/oaidc_custom_record.php`]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/data/oaidc_custom_record.php
+[`data/oaidc_custom_set.php`]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/data/oaidc_custom_set.php
 [`oai-pmh-repository.xsl`]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/views/public/xsl/oai-pmh-repository.xsl
 [Dublin Core]: http://dublincore.org
 [Dublin Core Terms]: http://www.dublincore.org/documents/dcmi-terms/
@@ -269,4 +341,5 @@ See commits for full list of contributors.
 [plugin issues]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/issues
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [CeCILL-B]: https://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
+[Bibliothèque Paris I Sorbonne]: https://nubis.univ-paris1.fr
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"

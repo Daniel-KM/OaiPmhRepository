@@ -237,7 +237,10 @@
     <div class="inputs five columns omega">
         <p class="explanation">
             <?php echo __('Apply the custom oai_dc output.'); ?>
-            <?php echo __('By default, it follows the recommandations of the %sEuropeana digital library%s.', '<a href="https://pro.europeana.eu/resources/apis/oai-pmh-service">', '</a>'); ?>
+            <?php echo __('By default, it follows the recommandations of the %sEuropeana digital library%s and the %sBibliothèque nationale de France%s.',
+                '<a href="https://pro.europeana.eu/resources/apis/oai-pmh-service">', '</a>',
+                '<a href="http://www.BnF.fr/documents/Guide_oaipmh.pdf">', '</a>'
+            ); ?>
             <?php echo __('The files "data/oaidc_custom.php" may need to be customized according to your data.'); ?>
         </p>
         <?php echo $this->formCheckbox(
