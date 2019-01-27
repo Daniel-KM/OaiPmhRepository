@@ -161,6 +161,50 @@
 </div>
 </fieldset>
 
+<fieldset id="fieldset-oaipmhrepository-identifiers"><legend><?php echo __('Set identifiers'); ?></legend>
+<p class="explanation">
+    <?php echo __('The oai sets are identified with a unique identifier, that must be different between different types of sets.'); ?>
+    <?php echo __('So, check if they are no duplicate between names.'); ?>
+    <?php echo __('Furthermore, only some characters are allowed. Forbidden names will be skipped.'); ?>
+    <?php echo __('Diacritics are removed in the names, but they can be used if they are managed automatically by the database and php.'); ?>
+</p>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $this->formLabel(
+            'oaipmh_repository_identifier_itemset',
+            __('Set identifier from collection')
+        ); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <?php echo $this->formRadio('oaipmh_repository_identifier_itemset',
+            get_option('oaipmh_repository_identifier_itemset'),
+            null,
+            array(
+                'itemset_id' => __('itemset_id'),
+                'itemset_identifier' => __('First Dublin Core identifier'),
+                'itemset_title' => __('First Dublin Core title'),
+        )); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $this->formLabel(
+            'oaipmh_repository_identifier_itemtype',
+            __('Set identifier from item type')
+        ); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <?php echo $this->formRadio('oaipmh_repository_identifier_itemtype',
+            get_option('oaipmh_repository_identifier_itemtype'),
+            null,
+            array(
+                'itemtype_id' => __('itemtype_id'),
+                'itemtype_name' => __('Item type name'),
+        )); ?>
+    </div>
+</div>
+</fieldset>
+
 <fieldset id="fieldset-oaipmhrepository-custom"><legend><?php echo __('Custom'); ?></legend>
 <div class="field">
     <div class="two columns alpha">

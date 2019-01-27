@@ -53,6 +53,8 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'oaipmh_repository_expose_empty_collections' => true,
         'oaipmh_repository_expose_item_type' => false,
         'oaipmh_repository_expose_thumbnail' => false,
+        'oaipmh_repository_identifier_itemset' => 'itemset_id',
+        'oaipmh_repository_identifier_itemtype' => 'itemtype_id',
         'oaipmh_repository_custom_oai_dc' => false,
         'oaipmh_repository_custom_default_language' => '',
         'oaipmh_repository_add_human_stylesheet' => true,

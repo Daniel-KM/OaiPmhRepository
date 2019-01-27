@@ -59,16 +59,15 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
     protected $baseUrl;
 
     /**
-     * The value of dc:type is hard coded in the database (table elements).
+     * Id of main elements (hard coded in table elements).
      *
-     * @var int
+     * @var array
      */
-    protected $dcTypeId = 51;
-
-    /**
-     * The regex to replace html encoded diacritic by simple characters.
-     */
-    protected $regexDiacritics ='~\&([A-Za-z])(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron)\;~';
+    protected $dcId = array(
+        'identifier' => 43,
+        'title' => 50,
+        'type' => 51,
+    );
 
     /**
      * Constructor
@@ -442,13 +441,30 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 $collections = get_db()->getTable('Collection')->fetchObjects($select);
             }
 
+            $itemSetIdentifier = get_option('oaipmh_repository_identifier_itemset');
             foreach ($collections as $collection) {
                 $name = metadata(
                     $collection,
                     version_compare(OMEKA_VERSION, '2.4.1', '<') ? array('Dublin Core', 'Title') : 'display_title'
                 ) ?: __('[Untitled]');
+                $spec = null;
+                switch ($itemSetIdentifier) {
+                    case 'itemset_id':
+                        $spec = 'itemset_' . $collection->id;
+                        break;
+                    case 'itemset_identifier':
+                        $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier')));
+                        break;
+                    case 'itemset_title':
+                        $spec = $this->cleanSetString($name);
+                        break;
+                }
+
+                if (empty($spec)) {
+                    continue;
+                }
                 $elements = array(
-                    'setSpec' => 'itemset_' . $collection->id,
+                    'setSpec' => $spec,
                     'setName' => $name,
                 );
                 $sets[] = array(
@@ -459,6 +475,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         }
 
         if (in_array($expose, array('itemtype', 'itemset_itemtype'))) {
+            $itemTypeIdentifier = get_option('oaipmh_repository_identifier_itemtype');
+            $itemTypeId = $itemTypeIdentifier !== 'itemtype_name';
             $table = $db->getTable('ItemType');
             $select = $table->getSelect()
                 ->joinInner(array('items' => $db->Item), 'items.item_type_id = item_types.id', array())
@@ -468,8 +486,16 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             $itemTypes = $table->fetchAll($select);
 
             foreach ($itemTypes as $itemType) {
+                if ($itemTypeId) {
+                    $spec = 'type_' . $itemType['id'];
+                } else {
+                    $spec = $this->cleanSetString($itemType['name']);
+                    if (empty($spec)) {
+                        continue;
+                    }
+                }
                 $elements = array(
-                    'setSpec' => 'type_' . $itemType['id'],
+                    'setSpec' => $spec,
                     'setName' => $itemType['name'],
                 );
                 $sets[] = array(
@@ -496,7 +522,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 ->columns(array('DISTINCT(element_texts.text)'))
                 ->joinInner(array('element_texts' => $db->ElementText), 'element_texts.record_id = items.id', array())
                 ->where('items.public = 1')
-                ->where('element_texts.element_id = ' . $this->dcTypeId)
+                ->where('element_texts.element_id = ' . $this->dcId['type'])
                 ->where('LENGTH(element_texts.text) <= 190')
                 ->where('element_texts.text NOT LIKE "%:%"')
                 ->where('element_texts.text NOT LIKE "%\_%"')
@@ -504,10 +530,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 ->order('element_texts.text');
             $dcTypes = $table->fetchCol($select);
             foreach ($dcTypes as $dcType) {
-                $unspacedName = str_replace(' ', '_', $dcType);
-                $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
-                $asciiName = preg_replace($this->regexDiacritics, '\1', $asciiName);
-                if (preg_match("/[^A-Za-z0-9_.!~*'()-]/", $asciiName)) {
+                $spec = $this->cleanSetString($dcType);
+                if (empty($spec)) {
                     _log(
                         __('OAI-PMH Repository: skipped dc:type "%s": it contains unconvertable diacritic or disallowed characters.', $dcType),
                         Zend_Log::WARN
@@ -515,7 +539,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     continue;
                 }
                 $elements = array(
-                    'setSpec' => rawurlencode($asciiName),
+                    'setSpec' => $spec,
                     'setName' => $dcType,
                 );
                 $sets[] = array(
@@ -554,7 +578,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
      * @param Collection $collection
      * @return array
      */
-    protected function _prepareCollectionDescription(Collection $collection)
+    private function _prepareCollectionDescription(Collection $collection)
     {
         // List of the Dublin Core terms, needed to removed qualified ones.
         $dcTerms = array(
@@ -605,7 +629,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
      * @param array $values
      * @return DOMElement|null
      */
-    protected function _addSetDescription(DOMElement $set, $values)
+    private function _addSetDescription(DOMElement $set, $values)
     {
         if (empty($values)) {
             return null;
@@ -719,28 +743,80 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         if ($set) {
             $expose = get_option('oaipmh_repository_expose_set');
-            if (strpos($set, 'itemset_') === 0 && in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'))) {
-                $collection = substr($set, 8);
-                $itemTable->filterByCollection($select, $collection);
-            } elseif (strpos($set, 'type_') === 0 && in_array($expose, array('itemtype', 'itemset_itemtype'))) {
-                $itemType = substr($set, 5);
-                $itemTable->filterByItemType($select, $itemType);
-            } elseif (in_array($expose, array('dctype', 'itemset_dctype'))) {
-                $value = str_replace('_', ' ', rawurldecode($set));
-                if (strlen($value) > 190 || strpos($value, ':') !== false) {
-                    $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
-                    return;
+            $hasItemSet = in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
+            $hasItemType = in_array($expose, array('itemtype', 'itemset_itemtype'));
+            $hasDcType = in_array($expose, array('dctype', 'itemset_dctype'));
+
+            $found = false;
+
+            if ($hasItemSet) {
+                $itemSetIdentifier = get_option('oaipmh_repository_identifier_itemset');
+                switch ($itemSetIdentifier) {
+                    case 'itemset_id':
+                        if (strpos($set, 'itemset_') === 0) {
+                            $identifier = substr($set, 8);
+                            $itemTable->filterByCollection($select, $identifier);
+                            $found = true;
+                        }
+                        break;
+                    case 'itemset_identifier':
+                        // An identifier must not have a space.
+                        $identifier = rawurldecode($set);
+                        $id = $this->fetchRecordId($identifier, 'Collection', $this->dcId['identifier']);
+                        if ($id) {
+                            $itemTable->filterByCollection($select, $id);
+                            $found = true;
+                        }
+                        break;
+                    case 'itemset_title':
+                        $identifier = str_replace('_', ' ', rawurldecode($set));
+                        $id = $this->fetchRecordId($identifier, 'Collection', $this->dcId['title']);
+                        if ($id) {
+                            $itemTable->filterByCollection($select, $id);
+                            $found = true;
+                        }
+                        break;
                 }
-                $itemTable->filterBySearch($select, array(
-                    'advanced' => array(
-                        array(
-                            'element_id' => $this->dcTypeId,
-                            'type' => 'is exactly',
-                            'terms' => $value,
+            }
+
+            if (!$found && $hasItemType) {
+                $itemTypeIdentifier = get_option('oaipmh_repository_identifier_itemtype');
+                switch ($itemTypeIdentifier) {
+                    case 'itemtype_id':
+                        if (strpos($set, 'type_') === 0) {
+                            $identifier = substr($set, 5);
+                            $itemTable->filterByItemType($select, $identifier);
+                            $found = true;
+                        }
+                        break;
+                    case 'itemtype_name':
+                        $identifier = str_replace('_', ' ', rawurldecode($set));
+                        $record = get_record('ItemType', array('name' => $identifier));
+                        if ($record) {
+                            $itemTable->filterByItemType($select, $record->id);
+                            $found = true;
+                        }
+                        break;
+                }
+            }
+
+            if (!$found && $hasDcType) {
+                $value = str_replace('_', ' ', rawurldecode($set));
+                if (strlen($value) <= 190 && strpos($value, ':') === false) {
+                    $itemTable->filterBySearch($select, array(
+                        'advanced' => array(
+                            array(
+                                'element_id' => $this->dcId['type'],
+                                'type' => 'is exactly',
+                                'terms' => $value,
+                            ),
                         ),
-                    ),
-                ));
-            } else {
+                    ));
+                    $found = true;
+                }
+            }
+
+            if (!$found) {
                 $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
                 return;
             }
@@ -828,15 +904,43 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         if (in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'))) {
             $collection = $item->getCollection();
             if ($collection && $collection->public) {
-                $setSpecs[] = 'itemset_' . $collection->id;
+                $itemSetIdentifier = get_option('oaipmh_repository_identifier_itemset');
+                switch ($itemSetIdentifier) {
+                    case 'itemset_id':
+                        $spec = 'itemset_' . $collection->id;
+                        break;
+                    case 'itemset_identifier':
+                        $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier')));
+                        break;
+                    case 'itemset_title':
+                        $name = metadata(
+                            $collection,
+                            version_compare(OMEKA_VERSION, '2.4.1', '<') ? array('Dublin Core', 'Title') : 'display_title'
+                        ) ?: __('[Untitled]');
+                        $spec = $this->cleanSetString($name);
+                        break;
+                }
+                if ($spec) {
+                    $setSpecs[] = $spec;
+                }
             }
         }
+
         if (in_array($expose, array('itemtype', 'itemset_itemtype'))) {
             $itemType = $item->getItemType();
             if ($itemType) {
-                $setSpecs[] = 'type_' . $itemType->id;
+                $itemTypeIdentifier = get_option('oaipmh_repository_identifier_itemtype');
+                if ($itemTypeIdentifier !== 'itemtype_name') {
+                    $spec = 'type_' . $itemType['id'];
+                } else {
+                    $spec = $this->cleanSetString($itemType->name);
+                }
+                if ($spec) {
+                    $setSpecs[] = $spec;
+                }
             }
         }
+
         if (in_array($expose, array('dctype', 'itemset_dctype'))) {
             $dcTypes = metadata($item, array('Dublin Core', 'Type'), array('all' => true));
             foreach ($dcTypes as $dcType) {
@@ -846,11 +950,9 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     && strpos($dcType, ':') === false
                     && strpos($dcType, '_') === false
                 ) {
-                    $unspacedName = str_replace(' ', '_', $dcType);
-                    $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
-                    $asciiName = preg_replace($this->regexDiacritics, '\1', $asciiName);
-                    if (preg_match("/^[A-Za-z0-9_.!~*'()-]+$/", $asciiName)) {
-                        $setSpecs[] = rawurlencode($asciiName);
+                    $spec = $this->cleanSetString($dcType);
+                    if ($spec) {
+                        $setSpecs[] = $spec;
                     }
                 }
             }
@@ -1004,5 +1106,50 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         return $earliestItem
             ? OaiPmhRepository_Plugin_Date::dbToUtc($earliestItem->added)
             : OaiPmhRepository_Plugin_Date::unixToUtc(0);
+    }
+
+    /**
+     * Get a public record from an identifier element.
+     *
+     * @param string $identifier
+     * @param string $recordType
+     * @param int $elementId
+     * @return int
+     */
+    private function fetchRecordId($identifier, $recordType, $elementId)
+    {
+        $db = get_db();
+        $table = $db->getTable('ElementText');
+        $select = $table->getSelect()
+            ->reset(Zend_Db_Select::COLUMNS)
+            ->columns(array('element_texts.record_id'))
+            ->joinInner(array('records' => $db->$recordType), 'element_texts.record_id = records.id', array())
+            ->where('records.public = 1')
+            ->where('element_texts.record_type = ?', $recordType)
+            ->where('element_texts.element_id = ?', $elementId)
+            ->where('element_texts.text = ?', $identifier)
+            ->order('records.id')
+            ->limit(1);
+        $recordId = $table->fetchOne($select);
+        return (int) $recordId;
+    }
+
+    /**
+     * Convert a string to make it compatible for oai set.
+     *
+     * @param string $string
+     * @return string
+     */
+    private function cleanSetString($string)
+    {
+        $unspacedName = str_replace(' ', '_', $string);
+        // The regex to replace html encoded diacritic by simple characters.
+        // Note: mysql doesn't manage the same conversion for some alphabets.
+        $regexDiacritics ='~\&([A-Za-z])(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron)\;~';
+        $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
+        $asciiName = preg_replace($regexDiacritics, '\1', $asciiName);
+        return preg_match("/^[A-Za-z0-9_.!~*'()-]+$/", $asciiName)
+            ? rawurlencode($asciiName)
+            : null;
     }
 }
