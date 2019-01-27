@@ -127,12 +127,29 @@
     <div class="inputs five columns omega">
         <p class="explanation">
             <?php echo __('Apply the custom oai_dc output.'); ?>
+            <?php echo __('By default, it follows the recommandations of the %sEuropeana digital library%s.', '<a href="https://pro.europeana.eu/resources/apis/oai-pmh-service">', '</a>'); ?>
+            <?php echo __('The files "data/oaidc_custom.php" may need to be customized according to your data.'); ?>
         </p>
         <?php echo $this->formCheckbox(
             'oaipmh_repository_custom_oai_dc',
             true,
             array('checked' => (bool) get_option('oaipmh_repository_custom_oai_dc'))
         ); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $this->formLabel(
+            'oaipmh_repository_custom_default_language',
+            __('Default language for custom metadata')
+        ); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('This three letters language (ISO 639-2b) allows to define the default language of metadata in order to translate them.'); ?>
+            <?php echo __('This option is used only to normalize the custom metadata.'); ?>
+        </p>
+        <?php echo $this->formText('oaipmh_repository_custom_default_language', get_option('oaipmh_repository_custom_default_language')); ?>
     </div>
 </div>
 <div class="field">
