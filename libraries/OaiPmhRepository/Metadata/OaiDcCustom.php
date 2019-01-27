@@ -65,7 +65,8 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
         );
 
         $exposeItemType = (bool) get_option('oaipmh_repository_expose_item_type');
-        $exposeFiles = (bool) get_option('oaipmh_repository_expose_files');
+        $exposeFiles = metadata($item, 'has_files') && get_option('oaipmh_repository_expose_files');
+        $exposeThumbnail = $item->hasThumbnail() && get_option('oaipmh_repository_expose_thumbnail');
 
         /* Must create elements using createElement to make DOM allow a
          * top-level xmlns declaration instead of wasteful and non-
@@ -94,6 +95,8 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
                             array_unshift($values, $dcType);
                         }
                     }
+
+                    // TODO Add an option for default language when type is text? Better to fill source data.
                     break;
 
                 case 'identifier':
@@ -106,6 +109,14 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
                         foreach ($files as $file) {
                             $values[] = $file->getWebPath('original');
                         }
+                    }
+                    break;
+
+                case 'relation':
+                    // For Bibliothèque nationale de France, use "vignette :"
+                    // instead of "thumbnail:".
+                    if ($exposeThumbnail) {
+                        $values[] = 'vignette : ' . $item->getFile()->getWebPath('thumbnail');
                     }
                     break;
             }

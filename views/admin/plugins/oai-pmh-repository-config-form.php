@@ -120,6 +120,24 @@
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
+            'oaipmh_repository_expose_thumbnail',
+            __('Expose thumbnail')
+        ); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('The thumbnail is exposed as dc:relation.'); ?>
+        </p>
+        <?php echo $this->formCheckbox(
+            'oaipmh_repository_expose_thumbnail',
+            true,
+            array('checked' => (bool) get_option('oaipmh_repository_expose_thumbnail'))
+        ); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $this->formLabel(
             'oaipmh_repository_custom_oai_dc',
             __('Output custom metadata for oai_dc')
         ); ?>
