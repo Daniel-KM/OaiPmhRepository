@@ -7,7 +7,7 @@
  */
 
 /**
- * Class implmenting metadata output for RDF metadata format.
+ * Class implementing metadata output for RDF metadata format.
  *
  * @package OaiPmhRepository
  * @subpackage Metadata Formats
@@ -108,8 +108,8 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
             'Date Valid' => 'dcterms:valid'
         );
 
-        $elementTexts = $item->getAllElementTexts();
-        $elements = $item->getElementsBySetName('Dublin Core');
+        // $elementTexts = $item->getAllElementTexts();
+        // $elements = $item->getElementsBySetName('Dublin Core');
 
         foreach ($dcExtendedElements as $elementName => $propertyName) {
             try {

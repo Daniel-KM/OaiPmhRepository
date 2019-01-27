@@ -8,6 +8,8 @@
  * @author John Flatness, Yu-Hsun Lin
  * @copyright Copyright 2009-2014 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
+ *
+ * @var Omeka_View $this
  */
 ?>
 
@@ -126,7 +128,7 @@
         <p class="explanation">
             <?php echo __(
                 'If checked, a stylesheet will be added to the output, so humans will be able to browse the repository through a themable %sBootstrap%s responsive interface.',
-                '<a href="http://getbootstrap.com/">',
+                '<a href="https://getbootstrap.com/">',
                 '</a>'
             ); ?>
         </p>

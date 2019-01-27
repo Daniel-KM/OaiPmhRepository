@@ -7,7 +7,7 @@
  */
 
 /**
- * Class implmenting metadata output for the required oai_dc metadata format.
+ * Class implementing metadata output for the required oai_dc metadata format.
  * oai_dc is output of the 15 unqualified Dublin Core fields.
  *
  * @package OaiPmhRepository

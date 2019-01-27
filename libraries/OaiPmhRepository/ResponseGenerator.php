@@ -8,7 +8,7 @@
 
 /**
  * OaiPmhRepository_ResponseGenerator generates the XML responses to OAI-PMH
- * requests recieved by the repository.  The DOM extension is used to generate
+ * requests received by the repository. The DOM extension is used to generate
  * all the XML output on-the-fly.
  *
  * @package OaiPmhRepository
@@ -426,6 +426,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             $this->throwError(self::OAI_ERR_NO_SET_HIERARCHY);
         }
 
+        /** @var DOMElement $listSets */
         $listSets = $this->document->createElement('ListSets');
 
         if (!$this->error) {
@@ -447,11 +448,11 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      *
      * @see OaiPmhRepository_Metadata_OaiDc::appendMetadata()
      *
-     * @param Dom $set
+     * @param DOMElement $set
      * @param Collection $collection
-     * @return Dom
+     * @return DOMElement
      */
-    protected function _addSetDescription($set, $collection)
+    protected function _addSetDescription(DOMElement $set, $collection)
     {
         // Prepare the list of Dublin Core element texts, except the first title.
         $elementTexts = array();
@@ -730,7 +731,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     private function createResumptionToken($verb, $metadataPrefix, $cursor, $set, $from, $until)
     {
-        $tokenTable = get_db()->getTable('OaiPmhRepositoryToken');
+        // $tokenTable = get_db()->getTable('OaiPmhRepositoryToken');
 
         $resumptionToken = new OaiPmhRepositoryToken();
         $resumptionToken->verb = $verb;

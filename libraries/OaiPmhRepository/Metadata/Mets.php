@@ -7,9 +7,9 @@
  */
 
 /**
- * Class implmenting MODS metadata output format.
+ * Class implementing METS metadata output format.
  *
- * @link http://www.loc.gov/standards/mods/
+ * @link http://www.loc.gov/standards/mets/
  * @package OaiPmhRepository
  * @subpackage Metadata Formats
  */

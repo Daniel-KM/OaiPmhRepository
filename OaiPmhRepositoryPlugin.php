@@ -44,12 +44,12 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
      */
     protected $_options = array(
         'oaipmh_repository_base_url' => 'oai-pmh-repository/request',
-        'oaipmh_repository_name',
-        'oaipmh_repository_namespace_id',
-        'oaipmh_repository_expose_files' => 1,
-        'oaipmh_repository_expose_empty_collections' => 1,
-        'oaipmh_repository_expose_item_type' => 0,
-        'oaipmh_repository_add_human_stylesheet' => 1,
+        'oaipmh_repository_name' => 'omeka',
+        'oaipmh_repository_namespace_id' => 'default.must.change',
+        'oaipmh_repository_expose_files' => true,
+        'oaipmh_repository_expose_empty_collections' => true,
+        'oaipmh_repository_expose_item_type' => false,
+        'oaipmh_repository_add_human_stylesheet' => true,
     );
 
     /**
@@ -123,13 +123,9 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookConfig($args)
     {
         $post = $args['post'];
-        foreach ($this->_options as $optionKey => $optionValue) {
-            if (is_numeric($optionKey)) {
-                $optionKey = $optionValue;
-            }
-            if (isset($post[$optionKey])) {
-                set_option($optionKey, $post[$optionKey]);
-            }
+        $post = array_intersect_key($post, $this->_options);
+        foreach ($post as $key => $value) {
+           set_option($key, $value);
         }
     }
 
@@ -170,6 +166,9 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
 
     /**
      * Filter to add a dashboard panel.
+     *
+     * @param array $panels
+     * @return array
      */
     public function filterAdminDashboardPanels($panels)
     {
