@@ -66,6 +66,11 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
     protected $dcTypeId = 51;
 
     /**
+     * The regex to replace html encoded diacritic by simple characters.
+     */
+    protected $regexDiacritics ='~\&([A-Za-z])(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron)\;~';
+
+    /**
      * Constructor
      *
      * Creates the DomDocument object, and adds XML elements common to all
@@ -500,15 +505,17 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             $dcTypes = $table->fetchCol($select);
             foreach ($dcTypes as $dcType) {
                 $unspacedName = str_replace(' ', '_', $dcType);
-                if (preg_match("/[^A-Za-z0-9_.!~*'()-]/", $unspacedName)) {
+                $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
+                $asciiName = preg_replace($this->regexDiacritics, '\1', $asciiName);
+                if (preg_match("/[^A-Za-z0-9_.!~*'()-]/", $asciiName)) {
                     _log(
-                        __('OAI-PMH Repository: dc:type "%s" contains diacritic or disallowed characters.', $dcType),
+                        __('OAI-PMH Repository: skipped dc:type "%s": it contains unconvertable diacritic or disallowed characters.', $dcType),
                         Zend_Log::WARN
                     );
                     continue;
                 }
                 $elements = array(
-                    'setSpec' => rawurlencode($unspacedName),
+                    'setSpec' => rawurlencode($asciiName),
                     'setName' => $dcType,
                 );
                 $sets[] = array(
@@ -840,8 +847,10 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     && strpos($dcType, '_') === false
                 ) {
                     $unspacedName = str_replace(' ', '_', $dcType);
-                    if (preg_match("/^[A-Za-z0-9_.!~*'()-]+$/", $unspacedName)) {
-                        $setSpecs[] = rawurlencode($unspacedName);
+                    $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
+                    $asciiName = preg_replace($this->regexDiacritics, '\1', $asciiName);
+                    if (preg_match("/^[A-Za-z0-9_.!~*'()-]+$/", $asciiName)) {
+                        $setSpecs[] = rawurlencode($asciiName);
                     }
                 }
             }
