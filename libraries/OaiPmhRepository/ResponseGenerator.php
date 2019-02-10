@@ -447,7 +447,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             foreach ($collections as $collection) {
                 $name = metadata(
                     $collection,
-                    version_compare(OMEKA_VERSION, '2.4.1', '<') ? array('Dublin Core', 'Title') : 'display_title'
+                    version_compare(OMEKA_VERSION, '2.4.2', '<') ? array('Dublin Core', 'Title') : 'display_title'
                 ) ?: __('[Untitled]');
                 $spec = null;
                 switch ($itemSetIdentifier) {
@@ -952,7 +952,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     case 'itemset_title':
                         $name = metadata(
                             $collection,
-                            version_compare(OMEKA_VERSION, '2.4.1', '<') ? array('Dublin Core', 'Title') : 'display_title'
+                            version_compare(OMEKA_VERSION, '2.4.2', '<') ? array('Dublin Core', 'Title') : 'display_title'
                         ) ?: __('[Untitled]');
                         $spec = $this->cleanSetString($name);
                         break;
