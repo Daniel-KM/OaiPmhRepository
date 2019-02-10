@@ -447,7 +447,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             foreach ($collections as $collection) {
                 $name = metadata(
                     $collection,
-                    version_compare(OMEKA_VERSION, '2.4.2', '<') ? array('Dublin Core', 'Title') : 'display_title'
+                    version_compare(OMEKA_VERSION, '2.4.2', '<') ? array('Dublin Core', 'Title') : 'display_title',
+                    array('no_filter' => true)
                 ) ?: __('[Untitled]');
                 $spec = null;
                 switch ($itemSetIdentifier) {
@@ -455,7 +456,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                         $spec = ($flatFormat ? 'itemset_' : '') . $collection->id;
                         break;
                     case 'itemset_identifier':
-                        $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier')));
+                        $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier'), array('no_filter' => true)));
                         if (empty($spec)) {
                             continue 2;
                         }
@@ -947,12 +948,13 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                         $spec = ($flatFormat ? 'itemset_' : '') . $collection->id;
                         break;
                     case 'itemset_identifier':
-                        $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier')));
+                        $spec = $this->cleanSetString(metadata($collection, array('Dublin Core', 'Identifier'), array('no_filter' => true)));
                         break;
                     case 'itemset_title':
                         $name = metadata(
                             $collection,
-                            version_compare(OMEKA_VERSION, '2.4.2', '<') ? array('Dublin Core', 'Title') : 'display_title'
+                            version_compare(OMEKA_VERSION, '2.4.2', '<') ? array('Dublin Core', 'Title') : 'display_title',
+                            array('no_filter' => true)
                         ) ?: __('[Untitled]');
                         $spec = $this->cleanSetString($name);
                         break;
@@ -979,7 +981,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         }
 
         if (in_array($expose, array('dctype', 'itemset_dctype'))) {
-            $dcTypes = metadata($item, array('Dublin Core', 'Type'), array('all' => true));
+            $dcTypes = metadata($item, array('Dublin Core', 'Type'), array('no_filter' => true, 'all' => true));
             $list = array();
             foreach ($dcTypes as $dcType) {
                 // dc:type should be shorter than 190 and without ":" and "_".
