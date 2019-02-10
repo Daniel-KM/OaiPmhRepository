@@ -82,12 +82,6 @@ Whether the plugin should expose the item type as Dublin Core Type.
 
 Default: false
 
-#### Expose item type
-
-Whether the plugin should expose the item type as Dublin Core Type.
-
-Default: false
-
 #### Expose thumbnail
 
 The thumbnail may be exposed as Dublin Core : Relation.
@@ -113,7 +107,8 @@ Default: hierarchic
 
 #### Format of the oai set identifier for collections
 
-The format can be `itemset_id`, or the first Dublic Core identifier or title.
+The format can be `itemset_id`, or the first Dublic Core identifier or title. In
+all cases, they are normalized (no spaces, etc.).
 
 #### Format of the oai set identifier for item types
 
@@ -127,7 +122,12 @@ Apply the custom oai_dc output. By default, it follows the recommandations of
 the [Europeana] digital library and the [Bibliothèque nationale de France].
 
 The files [`data/oaidc_custom_record.php`] and [`data/oaidc_custom_set.php`] may
-be adapted to complete data
+be adapted to complete data.
+
+Note: Dublin Core types are not available for releases before Omeka 2.5: the
+search is not possible in derived sets. To use it, you need to hack the file
+`application/models/Table/Item.php`: replace the method `Table_Item::_advancedSearch()`
+by the one of [Omeka 2.5] or later.
 
 #### Default language for custom metadata
 
@@ -328,6 +328,7 @@ Improvements of 2019 were built for [Bibliothèque Paris I Sorbonne].
 [Bibliothèque nationale de France]: http://www.BnF.fr/documents/Guide_oaipmh.pdf
 [`data/oaidc_custom_record.php`]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/data/oaidc_custom_record.php
 [`data/oaidc_custom_set.php`]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/data/oaidc_custom_set.php
+[Omeka 2.5]: https://github.com/omeka/Omeka/blob/master/application/models/Table/Item.php#L79-L174
 [`oai-pmh-repository.xsl`]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/views/public/xsl/oai-pmh-repository.xsl
 [Dublin Core]: http://dublincore.org
 [Dublin Core Terms]: http://www.dublincore.org/documents/dcmi-terms/

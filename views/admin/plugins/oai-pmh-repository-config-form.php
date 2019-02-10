@@ -65,6 +65,21 @@
 </fieldset>
 
 <fieldset id="fieldset-oaipmhrepository-expose"><legend><?php echo __('Exposition'); ?></legend>
+<?php $valueOptions = array(
+    'none' => __('None'),
+    'itemset' => __('Collections'),
+    'itemtype' => __('Item types'),
+    'dctype' => __('Dublin Core types'),
+    'itemset_itemtype' => __('Collections and Item types'),
+    'itemset_dctype' => __('Collections and Dublin Core types'),
+);
+$isOldOmeka = version_compare(OMEKA_VERSION, '2.5', '<');
+if ($isOldOmeka) {
+    $valueOptions['dctype'] .= ' *';
+    $valueOptions['itemset_dctype'] .= ' *';
+}
+
+?>
 <div class="field">
     <div class="two columns alpha">
         <?php echo $this->formLabel(
@@ -76,14 +91,14 @@
         <?php echo $this->formRadio('oaipmh_repository_expose_set',
             get_option('oaipmh_repository_expose_set'),
             null,
-            array(
-                'none' => __('None'),
-                'itemset' => __('Collections'),
-                'itemtype' => __('Item types'),
-                'dctype' => __('Dublin Core types'),
-                'itemset_itemtype' => __('Collections and Item types'),
-                'itemset_dctype' => __('Collections and Dublin Core types'),
-            )); ?>
+            $valueOptions
+        ); ?>
+        <?php if ($isOldOmeka): ?>
+        <p class="explanation">
+            <?php echo '* ' . __('Use of Dublin Core types with the option "Custom oai_dc" below is not possible in your version of Omeka, except if you hack the core. See %sreadme%s.',
+                '<a href="https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository#custom" target="_blank">', '</a>'); ?>
+        </p>
+        <?php endif; ?>
     </div>
 </div>
 <div class="field">
