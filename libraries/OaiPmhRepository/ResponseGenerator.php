@@ -1096,6 +1096,11 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 'namespace' => OaiPmhRepository_Metadata_OaiDc::METADATA_NAMESPACE,
                 'schema' => OaiPmhRepository_Metadata_OaiDc::METADATA_SCHEMA
             ),
+            'oai_qdc' => array(
+                'class' => 'OaiPmhRepository_Metadata_OaiQdc',
+                'namespace' => OaiPmhRepository_Metadata_OaiQdc::DCTERMS_NAMESPACE_URI,
+                'schema' => OaiPmhRepository_Metadata_OaiQdc::QDC_SCHEMA
+            ),
             'cdwalite' => array(
                 'class' => 'OaiPmhRepository_Metadata_CdwaLite',
                 'namespace' => OaiPmhRepository_Metadata_CdwaLite::METADATA_NAMESPACE,
