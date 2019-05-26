@@ -122,7 +122,8 @@ Apply the custom oai_dc output. By default, it follows the recommandations of
 the [Europeana] digital library and the [Bibliothèque nationale de France].
 
 The files [`data/oaidc_custom_record.php`] and [`data/oaidc_custom_set.php`] may
-be adapted to complete data.
+be adapted to complete data, for example to add a new type of document. An
+additional guide is available in the header of these files.
 
 Note: Dublin Core types are not available for releases before Omeka 2.5: the
 search is not possible in derived sets. To use it, you need to hack the file
