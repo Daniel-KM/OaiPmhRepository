@@ -1010,6 +1010,11 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 $list = $list2;
             }
             $setSpecs = array_merge($setSpecs, array_keys($list));
+            if (!$flatFormat) {
+                $setSpecs = array_map(function($v) {
+                    return 'type:' . $v;
+                }, $setSpecs);
+            }
         }
 
         $element = $parentElement->appendNewElementWithChildren('header', $headerData);
@@ -1210,6 +1215,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $regexDiacritics ='~\&([A-Za-z])(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron)\;~';
         $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
         $asciiName = preg_replace($regexDiacritics, '\1', $asciiName);
+        // TODO Finish search for the "_" that replaces ending spaces.
+        // $asciiName = trim($asciiName, '_');
         // The specs allows more characters, but they need to be url encoded, so
         // it create complexity ("/^[A-Za-z0-9_.!~*'()-]+$/").
         return preg_match('/^[A-Za-z0-9_.-]+$/', $asciiName)
