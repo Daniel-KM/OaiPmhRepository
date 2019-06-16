@@ -334,6 +334,8 @@ return array(
         ),
 
         // Specific metadata.
+        // This mapping is recommended by Bibliothèque interuniversitaire de la Sorbonne.
+        // @link https://nubis.univ-paris1.fr
         'postal_card' => array(
             'carte_postale' => 'Carte postale',
             'still_image' => 'Still Image',
@@ -345,6 +347,17 @@ return array(
             'still_image' => 'Still Image',
             'image_fixe' => 'Image Fixe',
             'image' => 'Image',
+        ),
+
+        'tapuscrit' => array(
+            'typescript' => 'Typescript' ,
+            'text' => 'Text',
+            'texte' => 'Texte',
+        ),
+        'typescript' => array(
+            'tapuscript' => 'Tapuscrit',
+            'text' => 'Text',
+            'texte' => 'Texte',
         ),
     ),
 );

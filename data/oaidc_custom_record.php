@@ -501,7 +501,7 @@ return array(
         ),
 
         // Specific metadata.
-        // This mapping is recommended by Bibliothèque Paris I Sorbonne.
+        // This mapping is recommended by Bibliothèque interuniversitaire de la Sorbonne.
         // @link https://nubis.univ-paris1.fr
         array(
             'translate' => array(
@@ -513,6 +513,17 @@ return array(
                 array('fre' => 'Image fixe'),
                 array('eng' => 'Image'),
                 array('fre' => 'Image'),
+            ),
+        ),
+
+        array(
+            'translate' => array(
+                'eng' => 'Typescript',
+                'fre' => 'Tapuscrit',
+            ),
+            'append' => array(
+                array('eng' => 'Text'),
+                array('fre' => 'Texte'),
             ),
         ),
     ),

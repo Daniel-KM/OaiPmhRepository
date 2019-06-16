@@ -322,7 +322,7 @@ See commits for full list of contributors.
 * Copyright Julian Maurice for BibLibre, 2016-2017
 * Copyright Daniel Berthereau, 2014-2019 (see [Daniel-KM])
 
-Improvements of 2019 were built for [Bibliothèque Paris I Sorbonne].
+Improvements of 2019 were built for [Bibliothèque interuniversitaire de la Sorbonne].
 
 
 [OAI-PMH Repository]: https://github.com/Daniel-KM/Omeka-S-plugin-OaiPmhRepository
@@ -351,5 +351,5 @@ Improvements of 2019 were built for [Bibliothèque Paris I Sorbonne].
 [plugin issues]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/issues
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [CeCILL-B]: https://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-[Bibliothèque Paris I Sorbonne]: https://nubis.univ-paris1.fr
+[Bibliothèque interuniversitaire de la Sorbonne]: https://nubis.univ-paris1.fr
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"

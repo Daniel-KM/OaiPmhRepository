@@ -326,9 +326,8 @@ this program; if not, write to the Free Software Foundation, Inc.,
 
 **Interface humaine** (xslt stylesheet)
 
-L'interface humaine est publiée sous la licence de type BSD [CeCILL-B]. Cf.
-l'entête du fichier pour les autres notes de licences.
-header for other licenses notes.
+L'interface humaine est publiée sous la licence de type BSD [CeCILL-B].
+Cf. l'entête du fichier pour les autres notes de licences.
 
 
 Copyright
@@ -341,7 +340,7 @@ Cf. les commits pour la liste complète des contributeurs.
 * Copyright Julian Maurice pour BibLibre, 2016-2017
 * Copyright Daniel Berthereau, 2014-2019 (cf. [Daniel-KM])
 
-Améliorations de 2019 ont été réalisé pour la [Bibliothèque Paris I Sorbonne].
+Les améliorations de 2019 ont été réalisées pour la [Bibliothèque interuniversitaire de la Sorbonne].
 
 
 [OAI-PMH Repository]: https://github.com/Daniel-KM/Omeka-S-plugin-OaiPmhRepository
@@ -370,5 +369,5 @@ Améliorations de 2019 ont été réalisé pour la [Bibliothèque Paris I Sorbon
 [issues]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/issues
 [GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
 [CeCILL-B]: https://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html
-[Bibliothèque Paris I Sorbonne]: https://nubis.univ-paris1.fr
+[Bibliothèque interuniversitaire de la Sorbonne]: https://nubis.univ-paris1.fr
 [Daniel-KM]: https://github.com/Daniel-KM "Daniel Berthereau"
