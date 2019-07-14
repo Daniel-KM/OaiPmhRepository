@@ -206,7 +206,6 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
                         $translated[] = array($custom['default_language'] => $value);
                     }
                 }
-
             } else {
                 foreach ($values as $value) {
                     $translated[] = array($custom['default_language'] => $value);
@@ -272,7 +271,7 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
                     $cases = array();
                     foreach ($mapping['options']['case'][$defaultLanguage] as $case) {
                         if (method_exists('Inflector', $case)) {
-                            $cases[] = array('Inflector', $case);;
+                            $cases[] = array('Inflector', $case);
                         } elseif (function_exists($case)) {
                             $cases[] = $case;
                         }
@@ -298,7 +297,7 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
                     }
 
                     if (!empty($map['translate'])) {
-                       // Merge all texts by language for quick search.
+                        // Merge all texts by language for quick search.
                         // Note: the same word may exist in many languages.
                         // The key is kept to get the translation instantly
                         // and to check limited.

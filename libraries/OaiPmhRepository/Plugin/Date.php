@@ -15,11 +15,11 @@
  */
 class OaiPmhRepository_Plugin_Date
 {
-    const OAI_DATE_PCRE     = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
+    const OAI_DATE_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
     const OAI_DATETIME_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}Z$/";
 
-    const OAI_GRANULARITY_STRING   = 'YYYY-MM-DDThh:mm:ssZ';
-    const OAI_GRANULARITY_DATE     = 1;
+    const OAI_GRANULARITY_STRING = 'YYYY-MM-DDThh:mm:ssZ';
+    const OAI_GRANULARITY_DATE = 1;
     const OAI_GRANULARITY_DATETIME = 2;
 
     /**
@@ -27,7 +27,7 @@ class OaiPmhRepository_Plugin_Date
      * Must be used with gmdate() to conform to spec.
      */
     const OAI_DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
-    const DB_DATE_FORMAT  = 'Y-m-d H:i:s';
+    const DB_DATE_FORMAT = 'Y-m-d H:i:s';
 
     /**
      * Converts the given Unix timestamp to OAI-PMH's specified ISO 8601 format.

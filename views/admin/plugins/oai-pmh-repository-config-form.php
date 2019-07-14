@@ -88,15 +88,19 @@ if ($isOldOmeka) {
         ); ?>
     </div>
     <div class="inputs five columns omega">
-        <?php echo $this->formRadio('oaipmh_repository_expose_set',
+        <?php echo $this->formRadio(
+            'oaipmh_repository_expose_set',
             get_option('oaipmh_repository_expose_set'),
             null,
             $valueOptions
         ); ?>
         <?php if ($isOldOmeka): ?>
         <p class="explanation">
-            <?php echo '* ' . __('Use of Dublin Core types with the option "Custom oai_dc" below is not possible in your version of Omeka, except if you hack the core. See %sreadme%s.',
-                '<a href="https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository#custom" target="_blank">', '</a>'); ?>
+            <?php echo '* ' . __(
+                'Use of Dublin Core types with the option "Custom oai_dc" below is not possible in your version of Omeka, except if you hack the core. See %sreadme%s.',
+                '<a href="https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository#custom" target="_blank">',
+                '</a>'
+            ); ?>
         </p>
         <?php endif; ?>
     </div>
@@ -114,9 +118,9 @@ if ($isOldOmeka) {
             echo __('This provides harvesters with direct access to files.'); ?>
         </p>
         <?php echo $this->formCheckbox(
-            'oaipmh_repository_expose_files',
-            true,
-            array('checked' => (bool) get_option('oaipmh_repository_expose_files'))
+                'oaipmh_repository_expose_files',
+                true,
+                array('checked' => (bool) get_option('oaipmh_repository_expose_files'))
         ); ?>
     </div>
 </div>
@@ -195,13 +199,15 @@ if ($isOldOmeka) {
             <?php echo __('When the format is hierarchic, all oai set identifiers are prefixed with the type (item set, item type or dctype).'); ?>
             <?php echo __('When the format is flat, all oai set identifiers are simply listed and mixed.'); ?>
         </p>
-        <?php echo $this->formRadio('oaipmh_repository_identifier_format',
+        <?php echo $this->formRadio(
+            'oaipmh_repository_identifier_format',
             get_option('oaipmh_repository_identifier_format'),
             null,
             array(
                 'tree' => __('Hierachic'),
                 'flat' => __('Flat'),
-        )); ?>
+            )
+        ); ?>
     </div>
 </div>
 <div class="field">
@@ -212,14 +218,16 @@ if ($isOldOmeka) {
         ); ?>
     </div>
     <div class="inputs five columns omega">
-        <?php echo $this->formRadio('oaipmh_repository_identifier_itemset',
+        <?php echo $this->formRadio(
+            'oaipmh_repository_identifier_itemset',
             get_option('oaipmh_repository_identifier_itemset'),
             null,
             array(
                 'itemset_id' => __('itemset_id'),
                 'itemset_identifier' => __('First Dublin Core identifier'),
                 'itemset_title' => __('First Dublin Core title'),
-        )); ?>
+            )
+        ); ?>
     </div>
 </div>
 <div class="field">
@@ -230,13 +238,15 @@ if ($isOldOmeka) {
         ); ?>
     </div>
     <div class="inputs five columns omega">
-        <?php echo $this->formRadio('oaipmh_repository_identifier_itemtype',
+        <?php echo $this->formRadio(
+            'oaipmh_repository_identifier_itemtype',
             get_option('oaipmh_repository_identifier_itemtype'),
             null,
             array(
                 'itemtype_id' => __('itemtype_id'),
                 'itemtype_name' => __('Item type name'),
-        )); ?>
+            )
+        ); ?>
     </div>
 </div>
 </fieldset>
@@ -252,9 +262,12 @@ if ($isOldOmeka) {
     <div class="inputs five columns omega">
         <p class="explanation">
             <?php echo __('Apply the custom oai_dc output.'); ?>
-            <?php echo __('By default, it follows the recommandations of the %sEuropeana digital library%s and the %sBibliothèque nationale de France%s.',
-                '<a href="https://pro.europeana.eu/resources/apis/oai-pmh-service">', '</a>',
-                '<a href="http://www.BnF.fr/documents/Guide_oaipmh.pdf">', '</a>'
+            <?php echo __(
+                'By default, it follows the recommandations of the %sEuropeana digital library%s and the %sBibliothèque nationale de France%s.',
+                '<a href="https://pro.europeana.eu/resources/apis/oai-pmh-service">',
+                '</a>',
+                '<a href="http://www.BnF.fr/documents/Guide_oaipmh.pdf">',
+                '</a>'
             ); ?>
             <?php echo __('The files "data/oaidc_custom.php" may need to be customized according to your data.'); ?>
         </p>

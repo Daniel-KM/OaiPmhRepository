@@ -1011,7 +1011,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             }
             $setSpecs = array_merge($setSpecs, array_keys($list));
             if (!$flatFormat) {
-                $setSpecs = array_map(function($v) {
+                $setSpecs = array_map(function ($v) {
                     return 'type:' . $v;
                 }, $setSpecs);
             }
@@ -1085,7 +1085,6 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         return $resumptionToken;
     }
-
 
     /**
      * Builds an array of entries for all included metadata mapping classes.
@@ -1212,7 +1211,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         $unspacedName = str_replace(' ', '_', strtolower($string));
         // The regex to replace html encoded diacritic by simple characters.
         // Note: mysql doesn't manage the same conversion for some alphabets.
-        $regexDiacritics ='~\&([A-Za-z])(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron)\;~';
+        $regexDiacritics = '~\&([A-Za-z])(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml|caron)\;~';
         $asciiName = htmlentities($unspacedName, ENT_NOQUOTES, 'utf-8');
         $asciiName = preg_replace($regexDiacritics, '\1', $asciiName);
         // TODO Finish search for the "_" that replaces ending spaces.

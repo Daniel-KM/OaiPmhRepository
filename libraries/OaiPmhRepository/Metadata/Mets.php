@@ -119,7 +119,7 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
 
                 foreach ($dcElementNames as $elementName) {
                     $upperName = Inflector::camelize($elementName);
-                    $dcElements = metadata($file, array('Dublin Core',$upperName));
+                    $dcElements = metadata($file, array('Dublin Core', $upperName));
 
                     if (isset($dcElements)) {
                         $fileDcXml->appendNewElement('dc:'.$elementName, $dcElements);
@@ -142,6 +142,6 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
     protected function getFileMetadata($file)
     {
         $db = get_db()->getTable('ElementTexts');
-        return $db->findBy(array('record_type'=>'file','record_id' => $file->id));
+        return $db->findBy(array('record_type' => 'file', 'record_id' => $file->id));
     }
 }

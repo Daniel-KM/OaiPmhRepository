@@ -39,7 +39,9 @@ class OaiPmhRepository_Metadata_OaiQdc implements OaiPmhRepository_Metadata_Form
     {
         $document = $metadataElement->ownerDocument;
         $oai_qdc = $document->createElementNS(
-            self::METADATA_NAMESPACE, 'oai_qdc:qualifieddc');
+            self::METADATA_NAMESPACE,
+            'oai_qdc:qualifieddc'
+        );
         $metadataElement->appendChild($oai_qdc);
 
         $oai_qdc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
@@ -127,7 +129,7 @@ class OaiPmhRepository_Metadata_OaiQdc implements OaiPmhRepository_Metadata_Form
                 $oai_qdc->appendNewElement('dc:identifier', record_url($item, 'show', true));
 
                 // Also append an identifier for each file
-                if(get_option('oaipmh_repository_expose_files')) {
+                if (get_option('oaipmh_repository_expose_files')) {
                     $files = $item->getFiles();
                     foreach ($files as $file) {
                         $oai_qdc->appendNewElement('dc:identifier', $file->getWebPath('original'));

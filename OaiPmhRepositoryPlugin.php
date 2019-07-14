@@ -4,7 +4,6 @@
  * @copyright John Flatness, Center for History and New Media, 2013-2014
  * @package OaiPmhRepository
  */
-
 define(
     'OAI_PMH_BASE_URL',
     WEB_ROOT . '/' . (($baseUrl = get_option('oaipmh_repository_base_url'))
@@ -163,7 +162,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         $post = $args['post'];
         $post = array_intersect_key($post, $this->_options);
         foreach ($post as $key => $value) {
-           set_option($key, $value);
+            set_option($key, $value);
         }
     }
 

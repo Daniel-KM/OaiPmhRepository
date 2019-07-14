@@ -39,24 +39,24 @@ return array(
         'collection' => array(
         ),
         'dataset' => array(
-            'jeu_de_donnees' =>'Jeu de données',
+            'jeu_de_donnees' => 'Jeu de données',
         ),
         'jeu_de_donnees' => array(
-            'dataset' =>'Dataset',
+            'dataset' => 'Dataset',
         ),
         'event' => array(
-            'evenement' =>'Événement',
+            'evenement' => 'Événement',
         ),
         'evenement' => array(
-            'event' =>'Event',
+            'event' => 'Event',
         ),
         'image' => array(
         ),
         'interactive_resource' => array(
-            'ressource_interactive' =>'Resource interactive',
+            'ressource_interactive' => 'Resource interactive',
         ),
         'ressource_interactive' => array(
-            'interactive_resource' =>'Interactive Resource',
+            'interactive_resource' => 'Interactive Resource',
         ),
 /* // Commented, because the translation of the BnF is different below.
         'moving_image' => array(
@@ -77,10 +77,10 @@ return array(
         'service' => array(
         ),
         'software' => array(
-            'logiciel' =>'Logiciel',
+            'logiciel' => 'Logiciel',
         ),
         'logiciel' => array(
-            'software' =>'Software',
+            'software' => 'Software',
         ),
 /* // Commented, because the translation of the BnF is different below.
         'sound' => array(
@@ -102,7 +102,7 @@ return array(
             'texte' => 'Texte',
         ),
         'texte' => array(
-            'text' =>'Text',
+            'text' => 'Text',
         ),
 
         // Specific metadata (BnF).
@@ -138,7 +138,7 @@ return array(
 
         ),
         'manuscript' => array(
-            'manuscrit' => 'Manuscrit' ,
+            'manuscrit' => 'Manuscrit',
             'text' => 'Text',
             'texte' => 'Texte',
 
@@ -350,7 +350,7 @@ return array(
         ),
 
         'tapuscrit' => array(
-            'typescript' => 'Typescript' ,
+            'typescript' => 'Typescript',
             'text' => 'Text',
             'texte' => 'Texte',
         ),

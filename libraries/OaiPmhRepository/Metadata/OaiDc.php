@@ -57,7 +57,7 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
 
         $exposeItemType = (bool) get_option('oaipmh_repository_expose_item_type');
         $exposeFiles = (bool) get_option('oaipmh_repository_expose_files');
-        $exposeThumbnail = $item->hasThumbnail() && get_option('oaipmh_repository_expose_thumbnail');;
+        $exposeThumbnail = $item->hasThumbnail() && get_option('oaipmh_repository_expose_thumbnail');
 
         /* Must create elements using createElement to make DOM allow a
          * top-level xmlns declaration instead of wasteful and non-

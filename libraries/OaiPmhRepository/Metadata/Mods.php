@@ -107,7 +107,6 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
             $mods->appendNewElement('genre', $type->text);
         }
 
-
         $identifiers = $item->getElementTexts('Dublin Core', 'Identifier');
         foreach ($identifiers as $identifier) {
             $text = $identifier->text;
