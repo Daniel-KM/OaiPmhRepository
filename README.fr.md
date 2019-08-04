@@ -7,6 +7,8 @@ dans Omeka. permettant ainsi aux moissonneurs OAI-PMH de récupérer les contenu
 les collections et les fichiers. Le plugin implémente la version 2.0 du
 protocole.
 
+Ce readme est disponible en [anglais].
+
 
 Installation
 ------------
@@ -343,11 +345,11 @@ Cf. les commits pour la liste complète des contributeurs.
 Les améliorations de 2019 ont été réalisées pour la [Bibliothèque interuniversitaire de la Sorbonne].
 
 
-[OAI-PMH Repository]: https://github.com/Daniel-KM/Omeka-S-plugin-OaiPmhRepository
-[Omeka]: https://omeka.org/s
+[OAI-PMH Repository]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository
+[Omeka]: https://omeka.org/classic
+[anglais]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/README.md
 [OAI-PMH]: https://www.openarchives.org/OAI/openarchivesprotocol.html
 [OAI-PMH Repository plugin]: https://github.com/omeka/plugin-OaiPmhRepository
-[Omeka]: https://omeka.org/classic
 [BibLibre]: https://github.com/biblibre
 [Installer un plugin]: https://omeka.org/classic/docs/Admin/Adding_and_Managing_Plugins/
 [Bootstrap]: https://getbootstrap.com

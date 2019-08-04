@@ -11,10 +11,10 @@
  * courant : « carte postale » (« Postal Card »), qui est une « Image fixe ».
  * @link https://nubis.univ-paris1.fr
  *
- * Cette liste peut être complétée et modifié. Elle ne change pas les données
+ * Cette liste peut être complétée et modifiée. Elle ne change pas les données
  * originales et permet donc d’exposer ses données directement.
  *
- * @copyright 2019, Daniel Berthereau pour la Bibliothèque de Paris I Sorbonne
+ * @copyright 2019, Daniel Berthereau pour la Bibliothèque interuniversitaire de la Sorbonne
  * @license CeCILL-B (https://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html)
  */
 
@@ -35,7 +35,7 @@
  * This list can be completed or updated. It doesn’t change original values, so
  * it can be used to expose metadata directly.
  *
- * @copyright 2019, Daniel Berthereau for Bibliothèque de Paris I Sorbonne
+ * @copyright 2019, Daniel Berthereau for Bibliothèque interuniversitaire de la Sorbonne
  * @license CeCILL-B (https://www.cecill.info/licences/Licence_CeCILL-B_V1-en.html)
  */
 

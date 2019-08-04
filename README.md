@@ -6,6 +6,8 @@ Initiative Protocol for Metadata Harvesting ([OAI-PMH]) repository for Omeka,
 allowing Omeka items, collections, and files to be harvested by OAI-PMH
 harvesters. The plugin implements version 2.0 of the protocol.
 
+This readme is available in [French].
+
 
 Installation
 ------------
@@ -325,11 +327,11 @@ See commits for full list of contributors.
 Improvements of 2019 were built for [Bibliothèque interuniversitaire de la Sorbonne].
 
 
-[OAI-PMH Repository]: https://github.com/Daniel-KM/Omeka-S-plugin-OaiPmhRepository
-[Omeka]: https://omeka.org/s
+[OAI-PMH Repository]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository
+[Omeka]: https://omeka.org/classic
+[French]: https://github.com/Daniel-KM/Omeka-plugin-OaiPmhRepository/blob/master/README.fr.md
 [OAI-PMH]: https://www.openarchives.org/OAI/openarchivesprotocol.html
 [OAI-PMH Repository plugin]: https://github.com/omeka/plugin-OaiPmhRepository
-[Omeka]: https://omeka.org/classic
 [BibLibre]: https://github.com/biblibre
 [Installing a plugin]: https://omeka.org/classic/docs/Admin/Adding_and_Managing_Plugins/
 [Bootstrap]: https://getbootstrap.com
