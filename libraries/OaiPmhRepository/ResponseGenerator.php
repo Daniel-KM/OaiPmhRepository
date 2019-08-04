@@ -759,6 +759,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
         if ($set) {
             $expose = get_option('oaipmh_repository_expose_set');
 
+            $originalSet = $set;
+
             $flatFormat = get_option('oaipmh_repository_identifier_format') === 'flat';
             if ($flatFormat) {
                 $hasItemSet = in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
@@ -857,11 +859,12 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     $found = true;
                 }
             }
-
             if (!$found) {
                 $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
                 return;
             }
+
+            $set = $originalSet;
         }
 
         if ($from) {
