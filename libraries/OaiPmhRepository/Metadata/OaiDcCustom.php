@@ -64,6 +64,21 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
             'language', 'relation', 'coverage', 'rights',
         );
 
+        $dcTypes = array(
+            'Collection',
+            'Dataset',
+            'Event',
+            'Image',
+            'Interactive Resource',
+            'Service',
+            'Software',
+            'Sound',
+            'Text',
+            'Physical Object',
+            'Still Image',
+            'Moving Image',
+        );
+
         $exposeItemType = (bool) get_option('oaipmh_repository_expose_item_type');
         $exposeFiles = metadata($item, 'has_files') && get_option('oaipmh_repository_expose_files');
         $exposeThumbnail = $item->hasThumbnail() && get_option('oaipmh_repository_expose_thumbnail');
@@ -214,12 +229,47 @@ class OaiPmhRepository_Metadata_OaiDcCustom implements OaiPmhRepository_Metadata
             $values = $translated;
 
             // Deduplicate values.
-            // array_unique() cannot be used with array values.
+            // array_unique() cannot be used with array values, and doesn't
+            // manage case.
             $result = array();
             foreach ($values as $value) {
-                $result[serialize($value)] = true;
+                $result[serialize(array_map('strtolower', $value))] = $value;
             }
-            $values = array_map('unserialize', array_keys($result));
+            $values = array_values($result);
+
+            // Specific value for BnF: dctype should be first, without language.
+            // Furthermore, Image should be before Still Image.
+            // Furthermore, the dctype may be set in English with another lang.
+            // TODO The last point is not fixed, since it's related to metadata.
+            // TODO Order extra types by lang.
+            if ($term === 'dc:type') {
+                $langs = array();
+                $dcTypesBase = array_combine(array_map('strtolower', $dcTypes), $dcTypes);
+
+                $ordered = $dcTypesBase;
+                foreach ($values as $valueData) {
+                    $value = reset($valueData);
+                    $lang = key($valueData);
+                    $isEng = empty($lang) || $lang === 'eng';
+                    if (!$isEng && !in_array($lang, $langs)) {
+                        $langs[] = $lang;
+                        foreach ($dcTypes as $dcType) {
+                            $ordered[strtolower($dcType) . '-' . $lang] =  $dcType;
+                        }
+                    }
+                    $ordered[strtolower($value) . ($isEng ? '' : ('-' . $lang))] = $valueData;
+                }
+
+                $values = array_values(array_filter($ordered, 'is_array'));
+                if ($values) {
+                    $first = $values[0];
+                    $value = reset($first);
+                    $lang = key($first);
+                    if ($lang === 'eng' && isset($dcTypesBase[strtolower($value)])) {
+                        $values[0] = [$value];
+                    }
+                }
+            }
 
             foreach ($values as $valueData) {
                 $value = reset($valueData);
