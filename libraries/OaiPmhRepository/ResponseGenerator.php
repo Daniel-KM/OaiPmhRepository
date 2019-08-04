@@ -760,16 +760,16 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             $expose = get_option('oaipmh_repository_expose_set');
 
             $flatFormat = get_option('oaipmh_repository_identifier_format') === 'flat';
-            if (!$flatFormat) {
+            if ($flatFormat) {
+                $hasItemSet = in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
+                $hasItemType = in_array($expose, array('itemtype', 'itemset_itemtype'));
+                $hasDcType = in_array($expose, array('dctype', 'itemset_dctype'));
+            } else {
                 $main = strtok($set, ':');
                 $set = strtok(':');
                 $hasItemSet = $main === 'itemset' && in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
                 $hasItemType = $main === 'type' && in_array($expose, array('itemtype', 'itemset_itemtype'));
                 $hasDcType = $main === 'type' && in_array($expose, array('dctype', 'itemset_dctype'));
-            } else {
-                $hasItemSet = in_array($expose, array('itemset', 'itemset_itemtype', 'itemset_dctype'));
-                $hasItemType = in_array($expose, array('itemtype', 'itemset_itemtype'));
-                $hasDcType = in_array($expose, array('dctype', 'itemset_dctype'));
             }
 
             $found = false;
@@ -838,15 +838,21 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                     } else {
                         $values = array($value);
                     }
+
+                    // TODO Replace sql regexp by a query with x IN ($values).
+                    $valuesPattern = array_map(function($v) {
+                        return preg_quote($v, '\\');
+                    }, $values);
+                    $valuesPattern = '^(' . implode('|', $valuesPattern) . ')$';
+
                     $advanced = array();
-                    foreach ($values as $value) {
-                        $advanced[] = array(
-                            'joiner' => 'or',
-                            'element_id' => $this->dcId['type'],
-                            'type' => 'is exactly',
-                            'terms' => $value,
-                        );
-                    }
+                    $advanced[] = array(
+                        'joiner' => 'or',
+                        'element_id' => $this->dcId['type'],
+                        'type' => 'matches',
+                        'terms' => $valuesPattern,
+                    );
+
                     $itemTable->filterBySearch($select, array('advanced' => $advanced));
                     $found = true;
                 }
