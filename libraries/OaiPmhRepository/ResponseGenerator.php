@@ -756,6 +756,10 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
 
         $itemTable->filterByPublic($select, true);
 
+        // Some queries requires to group results by id.
+        $select
+            ->group(array('items.id'));
+
         if ($set) {
             $expose = get_option('oaipmh_repository_expose_set');
 
@@ -832,33 +836,46 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
             }
 
             if (!$found && $hasDcType) {
-                $value = str_replace('_', ' ', rawurldecode($set));
+                $originalValue = rawurldecode($set);
+                $value = str_replace('_', ' ', $originalValue);
+                $values = array($originalValue, $value);
                 if (strlen($value) <= 190 && strpos($value, ':') === false) {
                     if (get_option('oaipmh_repository_custom_oai_dc')) {
-                        $values = $this->prepareSearchSetList('dc:type', $value);
-                        $values = array_merge(array($value), $values);
-                    } else {
-                        $values = array($value);
+                        $mappedValues = $this->prepareSearchSetList('dc:type', $originalValue);
+                        $values = array_merge($values, $mappedValues);
                     }
+                    $values = array_unique($values);
 
-                    // TODO Replace sql regexp by a query with x IN ($values).
-                    $valuesPattern = array_map(function($v) {
-                        return preg_quote($v, '\\');
-                    }, $values);
-                    $valuesPattern = '^(' . implode('|', $valuesPattern) . ')$';
-
-                    $advanced = array();
-                    $advanced[] = array(
-                        'joiner' => 'or',
-                        'element_id' => $this->dcId['type'],
-                        'type' => 'matches',
-                        'terms' => $valuesPattern,
-                    );
+                    // TODO Mysql has a limit to the number of join and filter "x IN ($values)" doesn't exist in core.
+                    if (count($values) > 30) {
+                        $valuesPattern = array_map(function($v) {
+                            return preg_quote($v, '\\');
+                        }, $values);
+                        $valuesPattern = '^(' . implode('|', $valuesPattern) . ')$';
+                        $advanced = array();
+                        $advanced[] = array(
+                            'joiner' => 'or',
+                            'element_id' => $this->dcId['type'],
+                            'type' => 'matches',
+                            'terms' => $valuesPattern,
+                        );
+                    } else {
+                        $advanced = array();
+                        foreach ($values as $value) {
+                            $advanced[] = array(
+                                'joiner' => 'or',
+                                'element_id' => $this->dcId['type'],
+                                'type' => 'is exactly',
+                                'terms' => $value,
+                            );
+                        }
+                    }
 
                     $itemTable->filterBySearch($select, array('advanced' => $advanced));
                     $found = true;
                 }
             }
+
             if (!$found) {
                 $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
                 return;
@@ -1275,13 +1292,14 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
      * To be used mainly with OaiDcCustom.
      *
      * @param string $term
-     * @param string $value
+     * @param string $set
      * @return array
      */
-    private function prepareSearchSetList($term, $value)
+    private function prepareSearchSetList($term, $set)
     {
         static $reverted;
         if (is_null($reverted)) {
+            $reverted = array();
             $customSets = include PLUGIN_DIR
                 . DIRECTORY_SEPARATOR
                 . 'OaiPmhRepository'
@@ -1289,17 +1307,54 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_AbstractXmlGen
                 . 'data'
                 . DIRECTORY_SEPARATOR
                 . 'oaidc_custom_set.php';
+
             foreach ($customSets as $term => $mapping) {
+                // First step: revert and merge all keys and names.
                 foreach ($mapping as $key => $map) {
-                    $key = str_replace('_', ' ', $key);
-                    foreach ($map as $name) {
-                        $reverted[$term][strtolower($name)][] = $key;
+                    $keyr = str_replace('_', ' ', $key);
+                    foreach ($map as $keye => $name) {
+                        if (is_array($name)) {
+                            foreach ($name as $namee) {
+                                $namel = strtolower($namee);
+                                if (empty($reverted[$term][$namel])) {
+                                    $reverted[$term][$namel] = array();
+                                }
+                                $reverted[$term][$namel] = array_merge($reverted[$term][$namel], $name);
+                                $reverted[$term][$namel][] = $keyr;
+                                $reverted[$term][$namel][] = $keye;
+                                $reverted[$term][$namel][] = $key;
+                            }
+                        } else {
+                            $namel = strtolower($name);
+                            $reverted[$term][$namel][] = $namel;
+                            $reverted[$term][$namel][] = $keyr;
+                            $reverted[$term][$namel][] = $keye;
+                            $reverted[$term][$namel][] = $key;
+                        }
                     }
                 }
+
+                // Second step: merge matching keys (translations).
+                $revertedB = $reverted;
+                foreach ($reverted[$term] as $name => $list) {
+                    foreach ($list as $value) {
+                        if (isset($reverted[$term][$value])) {
+                            $revertedB[$term][$name] = array_merge($revertedB[$term][$name], $reverted[$term][$value]);
+                        }
+                    }
+                    $reverted[$term][$name] = array_values(array_unique(array_map('strtolower', $revertedB[$term][$name])));
+                    ksort($reverted[$term][$name]);
+                }
+                ksort($reverted[$term]);
             }
         }
-        return isset($reverted[$term][$value])
-            ? $reverted[$term][$value]
+
+        if (isset($reverted[$term][$set])) {
+            return $reverted[$term][$set];
+        }
+        $cleanSet = strtolower(str_replace('_', ' ', $set));
+        return isset($reverted[$term][$cleanSet])
+            ? $reverted[$term][$cleanSet]
             : array();
     }
 }

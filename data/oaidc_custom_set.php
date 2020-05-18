@@ -39,13 +39,19 @@ return array(
         'collection' => array(
         ),
         'dataset' => array(
-            'jeu_de_donnees' => 'Jeu de données',
+            'jeu_de_donnees' => array(
+                'Jeu de données',
+                'Jeu de donnees',
+            ),
         ),
         'jeu_de_donnees' => array(
             'dataset' => 'Dataset',
         ),
         'event' => array(
-            'evenement' => 'Événement',
+            'evenement' => array(
+                'Événement',
+                'Evenement',
+            ),
         ),
         'evenement' => array(
             'event' => 'Event',
@@ -60,18 +66,21 @@ return array(
         ),
 /* // Commented, because the translation of the BnF is different below.
         'moving_image' => array(
-            'image_animee' =>'Image animée',
+            'image_animee' => array(
+                'Image animée',
+                'Image animee',
+            )
         ),
         'image_animee' => array(
-            'moving_image' =>'Moving Image',
+            'moving_image' => 'Moving Image',
         ),
  */
 /* // Commented, because the translation of the BnF is different below.
         'physical_object' => array(
-            'objet_physique' =>'Objet physique',
+            'objet_physique' => 'Objet physique',
         ),
         'objet_physique' => array(
-            'physical_object' =>'Physical Object',
+            'physical_object' => 'Physical Object',
         ),
  */
         'service' => array(
@@ -84,18 +93,18 @@ return array(
         ),
 /* // Commented, because the translation of the BnF is different below.
         'sound' => array(
-            'son' =>'Son',
+            'son' => 'Son',
         ),
         'son' => array(
-            'sound' =>'Sound',
+            'sound' => 'Sound',
         ),
  */
 /* // Commented, because a value is appended below.
         'still_image' => array(
-            'image_fixe' =>'Image Fixe',
+            'image_fixe' => 'Image Fixe',
         ),
         'image_fixe' => array(
-            'still_image' =>'Still Image',
+            'still_image' => 'Still Image',
         ),
  */
         'text' => array(
@@ -120,7 +129,10 @@ return array(
             'texte' => 'Texte',
         ),
         'printed_monograph' => array(
-            'monographie_imprimee' => 'Monographie imprimée',
+            'monographie_imprimee' => array(
+                'Monographie imprimée',
+                'Monographie imprimee',
+            ),
             'text' => 'Text',
             'texte' => 'Texte',
 
@@ -144,7 +156,10 @@ return array(
 
         ),
         'printed_serial' => array(
-            'publication_en_serie_imprimee' => 'Publication en série imprimée',
+            'publication_en_serie_imprimee' => array(
+                'Publication en série imprimée',
+                'Publication en serie imprimee',
+            ),
             'text' => 'Text',
             'texte' => 'Texte',
 
@@ -162,7 +177,10 @@ return array(
             'sound' => 'Sound',
         ),
         'moving_image' => array(
-            'images_animees' => 'Image animées',
+            'images_animees' => array(
+                'Image animées',
+                'Image animees',
+            ),
             'video' => 'Video',
         ),
         'images_animees' => array(
@@ -183,7 +201,10 @@ return array(
             'image' => 'Image',
         ),
         'printed_music' => array(
-            'musique_imprimee' => 'Musique imprimée',
+            'musique_imprimee' => array(
+                'Musique imprimée',
+                'Musique imprimee',
+            ),
             'text' => 'Text',
             'texte' => 'Texte',
 
@@ -195,7 +216,10 @@ return array(
 
         ),
         'printed_and_manuscript_music' => array(
-            'musique_imprimee_et_manuscrite' => 'Musique imprimée et manuscrite',
+            'musique_imprimee_et_manuscrite' => array(
+                'Musique imprimée et manuscrite',
+                'Musique imprimee et manuscrite',
+            ),
             'text' => 'Text',
             'texte' => 'Texte',
 
@@ -249,7 +273,11 @@ return array(
 
         ),
         'archival_material' => array(
-            'document_d_archives' => "Document d'archives",
+            'document_d_archives' => array(
+                "Document d'archives",
+                'Document d’archives',
+                'Document d archives',
+            ),
             'text' => 'Text',
             'texte' => 'Texte',
 
@@ -306,7 +334,10 @@ return array(
             'image' => 'Image',
         ),
         'remote_sensing_image' => array(
-            'image_de_teledetection' => 'Image de télédétection',
+            'image_de_teledetection' => array(
+                'Image de télédétection',
+                'Image de teledetection',
+            ),
             'image' => 'Image',
         ),
         'image_de_teledetection' => array(
